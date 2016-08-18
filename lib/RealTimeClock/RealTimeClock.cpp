@@ -19,6 +19,7 @@
 RealTimeClock::RealTimeClock(uint8_t data_pin, uint8_t sclk_pin) {
   _sda_pin = data_pin;
   _scl_pin = sclk_pin;
+  begin();
 }
 
 DateTime RealTimeClock::getDateTime() {

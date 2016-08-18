@@ -1,4 +1,3 @@
-#include "temp_sensor.h"
 #include <Arduino.h>
 #include <DateTime.h>
 #include <RealTimeClock.h>
@@ -11,14 +10,8 @@ RealTimeClock rtc(SDA, SCL);
 
 int main() {
   initSerial();
-  // printFormattedFloat();
-
-  rtc.begin();
-  while (true) {
-    printRTCTime();
-    delay(1);
-  }
-
+  printFormattedFloat();
+  printRTCTime();
   return 0;
 }
 
@@ -36,9 +29,9 @@ void printFormattedFloat() {
 }
 
 const char *dayOfWeekToString(int dayOfWeek) {
-  const char *days[] = {"",         "Poniedzialek", "Wtorek", "Sroda",
-                        "Czwartek", "Piatek",       "Sobota", "Niedziela"};
-  return days[dayOfWeek];
+  const char *days[] = {"Poniedziałek", "Wtorek", "Środa",    "Czwartek",
+                        "Piątek",       "Sobota", "Niedziela"};
+  return days[dayOfWeek - 1];
 }
 
 void printRTCTime() {

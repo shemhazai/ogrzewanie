@@ -1,5 +1,5 @@
+#include "TempSensor.h"
 #include "config.h"
-#include "temp_sensor.h"
 
 TempSensor::TempSensor() {
   dallasTemperature = new DallasTemperature();
