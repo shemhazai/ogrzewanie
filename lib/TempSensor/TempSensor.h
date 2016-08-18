@@ -6,7 +6,7 @@
 
 class TempSensor {
 public:
-  TempSensor();
+  TempSensor(uint8_t tempSensorPin);
   ~TempSensor();
   /*
     functions to read temperature

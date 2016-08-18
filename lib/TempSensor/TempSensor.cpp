@@ -1,9 +1,8 @@
 #include "TempSensor.h"
-#include "config.h"
 
-TempSensor::TempSensor() {
+TempSensor::TempSensor(uint8_t tempSensorPin) {
   dallasTemperature = new DallasTemperature();
-  oneWire = new OneWire(TEMP_SENSOR_PIN);
+  oneWire = new OneWire(tempSensorPin);
   dallasTemperature->setOneWire(oneWire);
   dallasTemperature->begin();
   // setup sensors
