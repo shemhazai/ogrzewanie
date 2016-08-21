@@ -26,6 +26,10 @@ TempSensor::~TempSensor() {
   delete oneWire;
 }
 
+void TempSensor::requestTemperatures() {
+  dallasTemperature->requestTemperatures();
+}
+
 float TempSensor::readTKW() {
   dallasTemperature->requestTemperaturesByAddress(TKWAddress);
   return dallasTemperature->getTempC(TKWAddress);
@@ -41,13 +45,28 @@ float TempSensor::readTCWU() {
   return dallasTemperature->getTempC(TCWUAddress);
 }
 
+float TempSensor::readTKWWIthoutRequest() {
+  return dallasTemperature->getTempC(TKWAddress);
+}
+
+float TempSensor::readTBWithoutRequest() {
+  return dallasTemperature->getTempC(TBAddress);
+}
+
+float TempSensor::readTCWUWithoutRequest() {
+  return dallasTemperature->getTempC(TCWUAddress);
+}
+
 void TempSensor::tempSensorError(const char *msg) {
   lcd->clear();
   lcd->setCursor(0, 0);
   lcd->print(msg);
 
-  analogWrite(buzzerPin, 255);
+  digitalWrite(buzzerPin, HIGH);
+  doNothing();
+}
 
+void TempSensor::doNothing() {
   while (true)
     delay(1000);
 }

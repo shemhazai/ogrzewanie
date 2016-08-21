@@ -1,7 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define TEMP_SENSOR_PIN 33
+#define TEMP_SENSOR_PIN 52
 #define BUZZER_PIN 53
 
 #define RS 8
