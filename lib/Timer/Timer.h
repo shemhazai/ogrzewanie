@@ -11,6 +11,8 @@ public:
 
   int8_t setTimeout(void (*function)(), unsigned long timeout);
   int8_t setInterval(void (*function)(), unsigned long interval);
+  void enableTimer(uint8_t slot);
+  void disableTimer(uint8_t slot);
   void deleteTimer(uint8_t slot);
   void update();
 
@@ -21,6 +23,7 @@ private:
   unsigned long intervals[MAX_TIMERS];
   unsigned long currentIntervals[MAX_TIMERS];
   bool repeat[MAX_TIMERS];
+  bool enabled[MAX_TIMERS];
 
   unsigned long lastUpdate;
 };
