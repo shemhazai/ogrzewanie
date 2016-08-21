@@ -1,7 +1,5 @@
 #include "DateTime.h"
 
-#define SEC_1970_TO_2000 946684800
-
 static const uint8_t daysPerMonth[] = {31, 28, 31, 30, 31, 30,
                                        31, 31, 30, 31, 30, 31};
 

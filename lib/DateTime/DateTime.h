@@ -3,6 +3,8 @@
 
 #include <Arduino.h>
 
+#define SEC_1970_TO_2000 946684800
+
 class DateTime {
 public:
   DateTime();
