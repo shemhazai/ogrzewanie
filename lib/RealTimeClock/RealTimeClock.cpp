@@ -80,7 +80,7 @@ void RealTimeClock::setSQWRate(int rate) {
   _writeRegister(REG_CON, _reg);
 }
 
-float RealTimeClock::getTemp() {
+float RealTimeClock::getTempC() {
   uint8_t _msb = _readRegister(REG_TEMPM);
   uint8_t _lsb = _readRegister(REG_TEMPL);
   return (float)_msb + ((_lsb >> 6) * 0.25f);

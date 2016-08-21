@@ -29,7 +29,7 @@ public:
   void enable32KHz(bool enable);
   void setOutput(byte enable);
   void setSQWRate(int rate);
-  float getTemp();
+  float getTempC();
 
 private:
   uint8_t _scl_pin;
