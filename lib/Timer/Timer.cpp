@@ -40,22 +40,22 @@ int8_t Timer::setInterval(void (*function)(), unsigned long interval) {
 
 void Timer::enableTimer(uint8_t slot) {
   if (slot >= 0 && slot <= MAX_TIMERS) {
-    if (tasks[slot] != 0)
+    if (tasks[slot] != NULL)
       tasks[slot]->enabled = true;
   }
 }
 
 void Timer::disableTimer(uint8_t slot) {
   if (slot >= 0 && slot <= MAX_TIMERS)
-    if (tasks[slot] != 0)
+    if (tasks[slot] != NULL)
       tasks[slot]->enabled = false;
 }
 
 void Timer::deleteTimer(uint8_t slot) {
   if (slot >= 0 && slot <= MAX_TIMERS)
-    if (tasks[slot] != 0) {
-      delete (tasks[slot]);
-      tasks[slot] = 0;
+    if (tasks[slot] != NULL) {
+      delete tasks[slot];
+      tasks[slot] = NULL;
     }
 }
 
@@ -64,7 +64,7 @@ void Timer::update() {
   lastUpdate = millis();
 
   for (int i = 0; i < MAX_TIMERS; i++) {
-    if ((tasks[i] == 0) || !tasks[i]->enabled)
+    if ((tasks[i] == NULL) || !tasks[i]->enabled)
       continue;
 
     struct TimerTask *task = tasks[i];
@@ -74,7 +74,7 @@ void Timer::update() {
         task->timeLeft = task->interval;
       } else {
         delete task;
-        tasks[i] = 0;
+        tasks[i] = NULL;
       }
     } else {
       task->timeLeft -= updateTime;
@@ -84,7 +84,7 @@ void Timer::update() {
 
 int8_t Timer::findTimerSlot() {
   for (int i = 0; i < MAX_TIMERS; i++) {
-    if (tasks[i] == 0)
+    if (tasks[i] == NULL)
       return i;
   }
   return -1;
