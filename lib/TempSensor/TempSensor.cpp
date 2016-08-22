@@ -57,10 +57,27 @@ float TempSensor::readTCWUWithoutRequest() {
   return dallasTemperature->getTempC(TCWUAddress);
 }
 
+bool TempSensor::isInRange(const float temp) {
+  const int MIN_TEMP = 0;
+  const int MAX_TEMP = 120;
+  return temp >= MIN_TEMP && temp <= MAX_TEMP;
+}
+
 void TempSensor::tempSensorError(const char *msg) {
   lcd->clear();
   lcd->setCursor(0, 0);
-  lcd->print(msg);
+
+  const uint8_t len = strlen(msg);
+  uint8_t line = 0;
+  lcd->setCursor(0, line);
+  for (uint8_t i = 0; i < len; i++) {
+    if (msg[i] == '\n') {
+      line++;
+      lcd->setCursor(0, line);
+    } else {
+      lcd->print(msg[i]);
+    }
+  }
 
   digitalWrite(buzzerPin, HIGH);
   doNothing();

@@ -20,8 +20,11 @@ public:
   float readTBWithoutRequest();
   float readTCWUWithoutRequest();
 
-private:
+  bool isInRange(const float temp);
+
   void tempSensorError(const char *msg);
+
+private:
   void doNothing();
 
   LiquidCrystal *lcd;
