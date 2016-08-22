@@ -1,7 +1,6 @@
 /* DS3231  Real Time Clock */
 
 #include "RealTimeClock.h"
-#include <DateTime.h>
 
 #define REG_SEC 0x00
 #define REG_MIN 0x01

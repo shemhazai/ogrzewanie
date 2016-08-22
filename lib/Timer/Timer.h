@@ -3,6 +3,13 @@
 
 #include <Arduino.h>
 
+struct TimerTask {
+  void (*function)();
+  unsigned long interval;
+  unsigned long timeLeft;
+  bool enabled;
+};
+
 class Timer {
 public:
   const static uint8_t MAX_TIMERS = 10;
@@ -19,11 +26,7 @@ public:
 private:
   int8_t findTimerSlot();
 
-  void (*functions[MAX_TIMERS])();
-  unsigned long intervals[MAX_TIMERS];
-  unsigned long currentIntervals[MAX_TIMERS];
-  bool repeat[MAX_TIMERS];
-  bool enabled[MAX_TIMERS];
+  struct TimerTask *tasks[MAX_TIMERS];
 
   unsigned long lastUpdate;
 };
