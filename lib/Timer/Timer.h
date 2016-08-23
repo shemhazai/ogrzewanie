@@ -15,6 +15,7 @@ public:
   const static uint8_t MAX_TIMERS = 10;
 
   Timer();
+  ~Timer();
 
   int8_t setTimeout(void (*function)(), unsigned long timeout);
   int8_t setInterval(void (*function)(), unsigned long interval);

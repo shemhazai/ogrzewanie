@@ -1,6 +1,17 @@
 #include "Timer.h"
 
-Timer::Timer() { lastUpdate = millis(); }
+Timer::Timer() {
+  for (int i = 0; i < MAX_TIMERS; i++)
+    tasks[i] = NULL;
+  lastUpdate = millis();
+}
+
+Timer::~Timer() {
+  for (int i = 0; i < MAX_TIMERS; i++) {
+    if (tasks[i] == NULL)
+      delete tasks[i];
+  }
+}
 
 int8_t Timer::setTimeout(void (*function)(), unsigned long timeout) {
   if (timeout == 0)
@@ -73,8 +84,7 @@ void Timer::update() {
       if (task->interval != 0) {
         task->timeLeft = task->interval;
       } else {
-        delete task;
-        tasks[i] = NULL;
+        deleteTimer(i);
       }
     } else {
       task->timeLeft -= updateTime;
