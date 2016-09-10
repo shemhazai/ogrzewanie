@@ -19,10 +19,6 @@ TempSensor::~TempSensor() {
   delete oneWire;
 }
 
-void TempSensor::requestTemperatures() {
-  dallasTemperature->requestTemperatures();
-}
-
 float TempSensor::readTZ() {
   dallasTemperature->requestTemperaturesByAddress(TZAddress);
   return dallasTemperature->getTempC(TZAddress);
@@ -64,26 +60,6 @@ float TempSensor::readTB() {
 
 float TempSensor::readTCWU() {
   dallasTemperature->requestTemperaturesByAddress(TCWUAddress);
-  return dallasTemperature->getTempC(TCWUAddress);
-}
-
-float TempSensor::readTZWithoutRequest() {
-  return dallasTemperature->getTempC(TZAddress);
-}
-
-float TempSensor::readTKWWIthoutRequest() {
-  return dallasTemperature->getTempC(TKWAddress);
-}
-
-float TempSensor::readTCOWithoutRequest() {
-  return dallasTemperature->getTempC(TCOAddress);
-}
-
-float TempSensor::readTBWithoutRequest() {
-  return dallasTemperature->getTempC(TBAddress);
-}
-
-float TempSensor::readTCWUWithoutRequest() {
   return dallasTemperature->getTempC(TCWUAddress);
 }
 

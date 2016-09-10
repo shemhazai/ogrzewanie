@@ -11,20 +11,12 @@ public:
              uint8_t aTskwPin);
   ~TempSensor();
 
-  void requestTemperatures();
-
   float readTZ();
   float readTKW();
   float readTSKW();
   float readTCO();
   float readTB();
   float readTCWU();
-
-  float readTZWithoutRequest();
-  float readTKWWIthoutRequest();
-  float readTCOWithoutRequest();
-  float readTBWithoutRequest();
-  float readTCWUWithoutRequest();
 
   bool isTZInRange(const float temp);
   bool isTKWInRange(const float temp);
