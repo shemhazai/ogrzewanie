@@ -88,10 +88,8 @@ void Timer::update() {
 }
 
 void Timer::deleteAllTimers() {
-  for (uint8_t i = 0; i < MAX_TIMERS; i++) {
-    if (tasks[i] != NULL)
-      deleteTimer(i);
-  }
+  for (uint8_t i = 0; i < MAX_TIMERS; i++)
+    deleteTimer(i);
 }
 
 int8_t Timer::findTimerSlot() {
