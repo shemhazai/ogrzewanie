@@ -6,12 +6,7 @@ Timer::Timer() {
   lastUpdate = millis();
 }
 
-Timer::~Timer() {
-  for (uint8_t i = 0; i < MAX_TIMERS; i++) {
-    if (tasks[i] == NULL)
-      delete tasks[i];
-  }
-}
+Timer::~Timer() { deleteAllTimers(); }
 
 int8_t Timer::setTimeout(void (*function)(), unsigned long timeout) {
   if (timeout == 0)
