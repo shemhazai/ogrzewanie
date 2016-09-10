@@ -1,13 +1,13 @@
 #include "Timer.h"
 
 Timer::Timer() {
-  for (int i = 0; i < MAX_TIMERS; i++)
+  for (uint8_t i = 0; i < MAX_TIMERS; i++)
     tasks[i] = NULL;
   lastUpdate = millis();
 }
 
 Timer::~Timer() {
-  for (int i = 0; i < MAX_TIMERS; i++) {
+  for (uint8_t i = 0; i < MAX_TIMERS; i++) {
     if (tasks[i] == NULL)
       delete tasks[i];
   }
@@ -74,7 +74,7 @@ void Timer::update() {
   unsigned int updateTime = millis() - lastUpdate;
   lastUpdate = millis();
 
-  for (int i = 0; i < MAX_TIMERS; i++) {
+  for (int8_t i = 0; i < MAX_TIMERS; i++) {
     if ((tasks[i] == NULL) || !tasks[i]->enabled)
       continue;
 
@@ -92,8 +92,15 @@ void Timer::update() {
   }
 }
 
+void Timer::deleteAllTimers() {
+  for (uint8_t i = 0; i < MAX_TIMERS; i++) {
+    if (tasks[i] != NULL)
+      deleteTimer(i);
+  }
+}
+
 int8_t Timer::findTimerSlot() {
-  for (int i = 0; i < MAX_TIMERS; i++) {
+  for (int8_t i = 0; i < MAX_TIMERS; i++) {
     if (tasks[i] == NULL)
       return i;
   }

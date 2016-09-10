@@ -23,6 +23,7 @@ public:
   void disableTimer(uint8_t slot);
   void deleteTimer(uint8_t slot);
   void update();
+  void deleteAllTimers();
 
 private:
   int8_t findTimerSlot();
