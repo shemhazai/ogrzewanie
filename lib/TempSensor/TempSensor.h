@@ -7,20 +7,37 @@
 
 class TempSensor {
 public:
-  TempSensor(uint8_t tempSensorPin, LiquidCrystal *aLcd, uint8_t aBuzzerPin);
+  TempSensor(uint8_t tempSensorPin, LiquidCrystal *aLcd, uint8_t aBuzzerPin,
+             uint8_t aTskwPin);
   ~TempSensor();
 
   void requestTemperatures();
 
+  float readTZ();
   float readTKW();
+  float readTSKW();
+  float readTCO();
   float readTB();
   float readTCWU();
 
+  float readTZWithoutRequest();
   float readTKWWIthoutRequest();
+  float readTCOWithoutRequest();
   float readTBWithoutRequest();
   float readTCWUWithoutRequest();
 
-  bool isInRange(const float temp);
+  bool isTZInRange(const float temp);
+  bool isTKWInRange(const float temp);
+  bool isTSKWInRange(const float temp);
+  bool isTCOInRange(const float temp);
+  bool isTBInRange(const float temp);
+  bool isTCWUInRange(const float temp);
+
+  void setTZAddress(const uint8_t aTZAddress[]);
+  void setTKWAddress(const uint8_t aTKWAddress[]);
+  void setTCOAddress(const uint8_t aTCOAddress[]);
+  void setTBAddress(const uint8_t aTBAddress[]);
+  void setTCWUAddress(const uint8_t aTCWUAddress[]);
 
   void tempSensorError(const char *msg);
 
@@ -29,13 +46,16 @@ private:
 
   LiquidCrystal *lcd;
   uint8_t buzzerPin;
+  uint8_t tskwPin;
 
   DallasTemperature *dallasTemperature;
   OneWire *oneWire;
 
-  DeviceAddress TKWAddress;
-  DeviceAddress TBAddress;
-  DeviceAddress TCWUAddress;
+  uint8_t TZAddress[8];
+  uint8_t TKWAddress[8];
+  uint8_t TCOAddress[8];
+  uint8_t TBAddress[8];
+  uint8_t TCWUAddress[8];
 };
 
 #endif
