@@ -20,7 +20,15 @@ void readTSKW();
 void readTKG();
 void controlZT();
 void tempSensorError(const char *name, const float temp);
+
 void updateDisplay();
+void printTSKW();
+void printTKW();
+void printTCWU();
+void printTCO();
+void printTB();
+void printTZ();
+void printTKG();
 
 bool shouldTurnOnPKW() { return tkw > 40 && tskw > 100; }
 bool shouldTurnOffPKW() { return tskw < 100; }
@@ -153,38 +161,57 @@ void tempSensorError(const char *name, const float temp) {
   tempSensor->tempSensorError(text);
 }
 
+void updateDisplay() {
+  lcd->clear();
+  printTSKW();
+  printTKW();
+  printTCWU();
+  printTCO();
+  printTB();
+  printTZ();
+  printTKG();
+}
+
+void printTSKW() {
+  lcd->setCursor(0, 0);
+  lcd->print("TSKW ");
+  lcd->print((int)tskw);
+}
+
 char buff[10];
 void formatFloat(const float temp) {
   sprintf(buff, "%d.%d", abs((int)tkw), abs((int)(tkw * 10) % 10));
 }
 
-void updateDisplay() {
-  lcd->clear();
-
-  lcd->setCursor(0, 0);
-  lcd->print("TSKW ");
-  lcd->print((int)tskw);
-
+void printTKW() {
   formatFloat(tkw);
   lcd->setCursor(10, 0);
   lcd->print("TKW ");
   lcd->print(buff);
+}
 
+void printTCWU() {
   formatFloat(tcwu);
   lcd->setCursor(0, 1);
   lcd->print("TCWU ");
   lcd->print(buff);
+}
 
+void printTCO() {
   formatFloat(tco);
   lcd->setCursor(10, 1);
   lcd->print("TCO ");
   lcd->print(buff);
+}
 
+void printTB() {
   formatFloat(tb);
   lcd->setCursor(2, 0);
   lcd->print("TB   ");
   lcd->print(buff);
+}
 
+void printTZ() {
   formatFloat(tz);
   lcd->setCursor(2, 10);
   lcd->print("TZ ");
@@ -194,7 +221,9 @@ void updateDisplay() {
     lcd->print(" ");
   }
   lcd->print(buff);
+}
 
+void printTKG() {
   formatFloat(tkg);
   lcd->setCursor(3, 0);
   lcd->print("TKG  ");
