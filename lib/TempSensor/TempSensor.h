@@ -17,6 +17,7 @@ public:
   float readTCO();
   float readTB();
   float readTCWU();
+  float readTP();
 
   bool isTZInRange(const float temp);
   bool isTKWInRange(const float temp);
@@ -24,12 +25,14 @@ public:
   bool isTCOInRange(const float temp);
   bool isTBInRange(const float temp);
   bool isTCWUInRange(const float temp);
+  bool isTPInRange(const float temp);
 
   void setTZAddress(const uint8_t aTZAddress[]);
   void setTKWAddress(const uint8_t aTKWAddress[]);
   void setTCOAddress(const uint8_t aTCOAddress[]);
   void setTBAddress(const uint8_t aTBAddress[]);
   void setTCWUAddress(const uint8_t aTCWUAddress[]);
+  void setTPAddress(const uint8_t aTPAddress[]);
 
   void tempSensorError(const char *msg);
 
@@ -48,6 +51,7 @@ private:
   uint8_t TCOAddress[8];
   uint8_t TBAddress[8];
   uint8_t TCWUAddress[8];
+  uint8_t TPAddress[8];
 };
 
 #endif

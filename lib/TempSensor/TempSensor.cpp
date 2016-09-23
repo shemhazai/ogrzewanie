@@ -63,6 +63,11 @@ float TempSensor::readTCWU() {
   return dallasTemperature->getTempC(TCWUAddress);
 }
 
+float TempSensor::readTP() {
+  dallasTemperature->requestTemperaturesByAddress(TPAddress);
+  return dallasTemperature->getTempC(TPAddress);
+}
+
 bool TempSensor::isTZInRange(const float temp) {
   const float MAX_TEMP = 50;
   const float MIN_TEMP = -40;
@@ -99,6 +104,12 @@ bool TempSensor::isTCWUInRange(const float temp) {
   return temp > MIN_TEMP && temp < MAX_TEMP;
 }
 
+bool TempSensor::isTPInRange(const float temp) {
+  const float MAX_TEMP = 120;
+  const float MIN_TEMP = 0;
+  return temp > MIN_TEMP && temp < MAX_TEMP;
+}
+
 void TempSensor::setTZAddress(const uint8_t aTZAddress[]) {
   const uint8_t ADDRESS_LEN = 8;
   for (uint8_t i = 0; i < ADDRESS_LEN; i++)
@@ -127,6 +138,12 @@ void TempSensor::setTCWUAddress(const uint8_t aTCWUAddress[]) {
   const uint8_t ADDRESS_LEN = 8;
   for (uint8_t i = 0; i < ADDRESS_LEN; i++)
     TCWUAddress[i] = aTCWUAddress[i];
+}
+
+void TempSensor::setTPAddress(const uint8_t aTPAddress[]) {
+  const uint8_t ADDRESS_LEN = 8;
+  for (uint8_t i = 0; i < ADDRESS_LEN; i++)
+    TPAddress[i] = aTPAddress[i];
 }
 
 void TempSensor::tempSensorError(const char *msg) {
