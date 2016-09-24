@@ -149,6 +149,8 @@ void performTempSensorDiagnostics() {
     printTKWDiagnostics(isTKWWorking);
     printTPDiagnostics(isTPWorking);
     printTCODiagnostics(isTCOWorking);
+    while (true)
+      delay(1000);
   }
 }
 
@@ -274,7 +276,7 @@ void readTSKW() {
 
 void computeTKG() {
   const double KG = 1.0; // nachylenie krzywej grzania
-  const double TW = 21;  // pożądana temperatura wewnątrz
+  const double TW = 22;  // pożądana temperatura wewnątrz
   tkg = KG * (TW - tz) + TW;
 }
 
