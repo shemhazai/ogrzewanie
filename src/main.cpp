@@ -17,7 +17,7 @@ void initTempSensor();
 void readTemperatures();
 void prepareAndReadTSKW();
 void readTSKW();
-void readTKG();
+void computeTKG();
 void controlZT();
 
 void tempSensorError(const char *name, const float temp);
@@ -34,8 +34,8 @@ void printTP();
 
 inline bool shouldTurnOnPKW() { return tkw >= 40 && tskw >= 100; }
 inline bool shouldTurnOffPKW() { return tskw <= 100; }
-inline bool shouldTurnOnPCWU() { return (tb >= tcwu + 5) && (tcwu < 65); }
-inline bool shouldTurnOffPCWU() { return tb <= tcwu + 2; }
+inline bool shouldTurnOnPCWU() { return (tb >= tcwu + 5) && (tcwu < 70); }
+inline bool shouldTurnOffPCWU() { return (tb <= tcwu + 2) || (tcwu >= 70); }
 inline bool shouldTurnOnPCO() { return tz < 17; }
 inline bool shouldOpenZT() { return tco <= tkg - 1.5; }
 inline bool shouldCloseZT() { return tco >= tkg + 1.5; }
@@ -47,14 +47,14 @@ int main() {
 
   timer.setInterval(readTemperatures, 2000);
   timer.setInterval(prepareAndReadTSKW, 5000);
-  timer.setInterval(readTKG, 600000);  // 10min.
-  timer.setInterval(controlZT, 10000); // min 5.1s
+  timer.setInterval(computeTKG, 600000); // 10min.
   timer.setInterval(updateDisplay, 1000);
 
   readTemperatures();
   prepareAndReadTSKW();
-  readTKG();
+  computeTKG();
   updateDisplay();
+  controlZT(); // recursive function
 
   while (true) {
     if (shouldTurnOnPKW()) {
@@ -144,7 +144,7 @@ void readTSKW() {
   digitalWrite(TSKW_POWER_PIN, LOW);
 }
 
-void readTKG() {
+void computeTKG() {
   const double KG = 1.0; // nachylenie krzywej grzania
   const double TW = 21;  // pożądana temperatura wewnątrz
   tkg = KG * (TW - tz) + TW;
@@ -156,18 +156,25 @@ void openZTZEnd() { digitalWrite(ZTZ_PIN, LOW); }
 void controlZT() {
   if (shouldOpenZT()) {
     digitalWrite(ZTC_PIN, HIGH);
+    digitalWrite(ZTZ_PIN, LOW);
     timer.setTimeout(openZTCEnd, 3100); // 1 st.
+    timer.setTimeout(controlZT, 20000); // 20s przerwy
   } else if (shouldCloseZT()) {
     digitalWrite(ZTZ_PIN, HIGH);
+    digitalWrite(ZTC_PIN, LOW);
     timer.setTimeout(openZTZEnd, 5100); // 5/3 st.
+    timer.setTimeout(controlZT, 7000);
+  } else {
+    timer.setTimeout(controlZT, 5000);
   }
 }
 
 void tempSensorError(const char *name, const float temp) {
   timer.deleteAllTimers();
 
-  digitalWrite(PKW_PIN, LOW);
+  digitalWrite(PKW_PIN, HIGH);
   digitalWrite(PCWU_PIN, LOW);
+  digitalWrite(PCO_PIN, LOW);
   digitalWrite(ZTZ_PIN, HIGH);
   digitalWrite(ZTC_PIN, LOW);
   digitalWrite(TSKW_POWER_PIN, LOW);
