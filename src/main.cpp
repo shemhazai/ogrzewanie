@@ -288,12 +288,12 @@ void controlZT() {
     digitalWrite(ZTC_PIN, HIGH);
     digitalWrite(ZTZ_PIN, LOW);
     timer.setTimeout(openZTCEnd, 3100); // 1 st.
-    timer.setTimeout(controlZT, 20000); // 20s przerwy
+    timer.setTimeout(controlZT, 23100); // 20s przerwy
   } else if (shouldCloseZT()) {
     digitalWrite(ZTZ_PIN, HIGH);
     digitalWrite(ZTC_PIN, LOW);
     timer.setTimeout(openZTZEnd, 5100); // 5/3 st.
-    timer.setTimeout(controlZT, 7000);
+    timer.setTimeout(controlZT, 12100);
   } else {
     timer.setTimeout(controlZT, 5000);
   }
