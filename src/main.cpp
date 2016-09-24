@@ -152,6 +152,21 @@ void performTempSensorDiagnostics() {
   }
 }
 
+void measureTempsForDiagnostics() {
+  tz = tempSensor->readTZ();
+  tkw = tempSensor->readTKW();
+  tco = tempSensor->readTCO();
+  tb = tempSensor->readTB();
+  tcwu = tempSensor->readTCWU();
+  tp = tempSensor->readTP();
+
+  digitalWrite(TSKW_POWER_PIN, HIGH);
+  const int POWER_ON_TIME = 500;
+  delay(POWER_ON_TIME);
+  tskw = tempSensor->readTSKW();
+  digitalWrite(TSKW_POWER_PIN, LOW);
+}
+
 void printTSKWDiagnostics(bool isTSKWWorking) {
   lcd->setCursor(0, 0);
   lcd->print("Tskw: ");
@@ -220,21 +235,6 @@ void printTCODiagnostics(bool isTCOWorking) {
   } else {
     lcd->print("-");
   }
-}
-
-void measureTempsForDiagnostics() {
-  tz = tempSensor->readTZ();
-  tkw = tempSensor->readTKW();
-  tco = tempSensor->readTCO();
-  tb = tempSensor->readTB();
-  tcwu = tempSensor->readTCWU();
-  tp = tempSensor->readTP();
-
-  digitalWrite(TSKW_POWER_PIN, HIGH);
-  const int POWER_ON_TIME = 500;
-  delay(POWER_ON_TIME);
-  tskw = tempSensor->readTSKW();
-  digitalWrite(TSKW_POWER_PIN, LOW);
 }
 
 void readTemperatures() {
