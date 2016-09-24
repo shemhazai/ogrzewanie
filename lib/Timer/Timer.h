@@ -12,7 +12,7 @@ struct TimerTask {
 
 class Timer {
 public:
-  const static uint8_t MAX_TIMERS = 10;
+  const static uint8_t MAX_TIMERS = 16;
 
   Timer();
   ~Timer();
