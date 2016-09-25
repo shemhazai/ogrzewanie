@@ -8,7 +8,7 @@ LiquidCrystal *lcd;
 TempSensor *tempSensor;
 Timer timer;
 
-float tz, tkw, tskw, tco, tb, tcwu, tkg, tp;
+float tz, tkw, tskw = 500, tco, tb, tcwu, tkg, tp;
 
 void setup();
 void loop();
@@ -17,23 +17,10 @@ void initPins();
 void initLcd();
 void initTempSensor();
 
-void performTempSensorDiagnostics();
-void measureTempsForDiagnostics();
-void printTSKWDiagnostics(bool isTSKWWorking);
-void printTZDiagnostics(bool isTZWorking);
-void printTCWUDiagnostics(bool isTCWUWorking);
-void printTBDiagnostics(bool isTBWorking);
-void printTKWDiagnostics(bool isTKWWorking);
-void printTPDiagnostics(bool isTPWorking);
-void printTCODiagnostics(bool isTCOWorking);
-
 void readTemperatures();
-void prepareAndReadTSKW();
-void readTSKW();
 void computeTKG();
 void controlZT();
 
-void tempSensorError(const char *name, const float temp);
 void stopOnError();
 
 void updateDisplay();
@@ -66,15 +53,12 @@ void setup() {
   initPins();
   initLcd();
   initTempSensor();
-  performTempSensorDiagnostics();
 
   timer.setInterval(readTemperatures, 2000);
-  timer.setInterval(prepareAndReadTSKW, 5000);
   timer.setInterval(computeTKG, 600000); // 10min.
   timer.setInterval(updateDisplay, 1000);
 
   readTemperatures();
-  prepareAndReadTSKW();
   computeTKG();
   updateDisplay();
   controlZT(); // recursive function
@@ -104,7 +88,6 @@ void loop() {
 
 void initPins() {
   pinMode(BUZZER_PIN, OUTPUT);
-  pinMode(TSKW_POWER_PIN, OUTPUT);
   pinMode(PKW_PIN, OUTPUT);
   pinMode(PCWU_PIN, OUTPUT);
   pinMode(PCO_PIN, OUTPUT);
@@ -121,131 +104,14 @@ void initLcd() {
 }
 
 void initTempSensor() {
-  tempSensor = new TempSensor(TEMP_SENSOR_PIN, lcd, BUZZER_PIN, TSKW_PIN);
+  tempSensor = new TempSensor(TEMP_SENSOR_PIN, lcd, BUZZER_PIN);
   tempSensor->setTZAddress(TZAddress);
   tempSensor->setTKWAddress(TKWAddress);
   tempSensor->setTCOAddress(TCOAddress);
   tempSensor->setTBAddress(TBAddress);
   tempSensor->setTCWUAddress(TCWUAddress);
   tempSensor->setTPAddress(TPAddress);
-}
-
-void performTempSensorDiagnostics() {
-  measureTempsForDiagnostics();
-
-  bool isTZWorking = tempSensor->isTZInRange(tz);
-  bool isTKWWorking = tempSensor->isTKWInRange(tkw);
-  bool isTCOWorking = tempSensor->isTCOInRange(tco);
-  bool isTBWorking = tempSensor->isTBInRange(tb);
-  bool isTCWUWorking = tempSensor->isTCWUInRange(tcwu);
-  bool isTPWorking = tempSensor->isTPInRange(tp);
-  bool isTSKWWorking = tempSensor->isTSKWInRange(tskw);
-
-  bool working = isTZWorking && isTKWWorking && isTCOWorking && isTBWorking &&
-                 isTBWorking && isTCWUWorking && isTPWorking && isTSKWWorking;
-
-  if (working) {
-    digitalWrite(BUZZER_PIN, HIGH);
-    delay(200);
-    digitalWrite(BUZZER_PIN, LOW);
-  } else {
-    stopOnError();
-    lcd->clear();
-    printTSKWDiagnostics(isTSKWWorking);
-    printTZDiagnostics(isTZWorking);
-    printTCWUDiagnostics(isTCWUWorking);
-    printTBDiagnostics(isTBWorking);
-    printTKWDiagnostics(isTKWWorking);
-    printTPDiagnostics(isTPWorking);
-    printTCODiagnostics(isTCOWorking);
-    while (true)
-      delay(1000);
-  }
-}
-
-void measureTempsForDiagnostics() {
-  tz = tempSensor->readTZ();
-  tkw = tempSensor->readTKW();
-  tco = tempSensor->readTCO();
-  tb = tempSensor->readTB();
-  tcwu = tempSensor->readTCWU();
-  tp = tempSensor->readTP();
-
-  digitalWrite(TSKW_POWER_PIN, HIGH);
-  const int POWER_ON_TIME = 500;
-  delay(POWER_ON_TIME);
-  tskw = tempSensor->readTSKW();
-  digitalWrite(TSKW_POWER_PIN, LOW);
-}
-
-void printTSKWDiagnostics(bool isTSKWWorking) {
-  lcd->setCursor(0, 0);
-  lcd->print("Tskw: ");
-  if (isTSKWWorking) {
-    lcd->print("+");
-  } else {
-    lcd->print("-");
-  }
-}
-
-void printTZDiagnostics(bool isTZWorking) {
-  lcd->setCursor(9, 0);
-  lcd->print("Tz: ");
-  if (isTZWorking) {
-    lcd->print("+");
-  } else {
-    lcd->print("-");
-  }
-}
-
-void printTCWUDiagnostics(bool isTCWUWorking) {
-  lcd->setCursor(0, 1);
-  lcd->print("Tcwu: ");
-  if (isTCWUWorking) {
-    lcd->print("+");
-  } else {
-    lcd->print("-");
-  }
-}
-
-void printTBDiagnostics(bool isTBWorking) {
-  lcd->setCursor(9, 1);
-  lcd->print("Tb: ");
-  if (isTBWorking) {
-    lcd->print("+");
-  } else {
-    lcd->print("-");
-  }
-}
-
-void printTKWDiagnostics(bool isTKWWorking) {
-  lcd->setCursor(0, 2);
-  lcd->print("Tkw : ");
-  if (isTKWWorking) {
-    lcd->print("+");
-  } else {
-    lcd->print("-");
-  }
-}
-
-void printTPDiagnostics(bool isTPWorking) {
-  lcd->setCursor(9, 2);
-  lcd->print("Tp: ");
-  if (isTPWorking) {
-    lcd->print("+");
-  } else {
-    lcd->print("-");
-  }
-}
-
-void printTCODiagnostics(bool isTCOWorking) {
-  lcd->setCursor(0, 3);
-  lcd->print("Tco : ");
-  if (isTCOWorking) {
-    lcd->print("+");
-  } else {
-    lcd->print("-");
-  }
+  tempSensor->diagnose(stopOnError);
 }
 
 void readTemperatures() {
@@ -256,31 +122,13 @@ void readTemperatures() {
   tcwu = tempSensor->readTCWU();
   tp = tempSensor->readTP();
 
-  if (!tempSensor->isTZInRange(tz))
-    tempSensorError("Tz", tz);
-  if (!tempSensor->isTKWInRange(tkw))
-    tempSensorError("Tkw", tkw);
-  if (!tempSensor->isTCOInRange(tco))
-    tempSensorError("Tco", tco);
-  if (!tempSensor->isTBInRange(tb))
-    tempSensorError("Tb", tb);
-  if (!tempSensor->isTCWUInRange(tcwu))
-    tempSensorError("Tcwu", tcwu);
-  if (!tempSensor->isTPInRange(tp))
-    tempSensorError("Tp", tp);
-}
+  bool working = tempSensor->isTZInRange(tz) && tempSensor->isTKWInRange(tkw) &&
+                 tempSensor->isTCOInRange(tco) && tempSensor->isTBInRange(tb) &&
+                 tempSensor->isTCWUInRange(tcwu) && tempSensor->isTPInRange(tp);
 
-void prepareAndReadTSKW() {
-  digitalWrite(TSKW_POWER_PIN, HIGH);
-  const int POWER_ON_TIME = 500;
-  timer.setTimeout(readTSKW, POWER_ON_TIME);
-}
-
-void readTSKW() {
-  tskw = tempSensor->readTSKW();
-  if (!tempSensor->isTSKWInRange(tskw))
-    tempSensorError("TSKW", tskw);
-  digitalWrite(TSKW_POWER_PIN, LOW);
+  if (!working) {
+    tempSensor->diagnose(stopOnError);
+  }
 }
 
 void computeTKG() {
@@ -308,14 +156,6 @@ void controlZT() {
   }
 }
 
-void tempSensorError(const char *name, const float temp) {
-  stopOnError();
-  char text[40];
-  sprintf(text, "Bledna temperatura!\n%s: %d.%d C", name, (int)temp,
-          abs((int)(temp * 10) % 10));
-  tempSensor->tempSensorError(text);
-}
-
 void stopOnError() {
   timer.deleteAllTimers();
 
@@ -324,7 +164,6 @@ void stopOnError() {
   digitalWrite(PCO_PIN, LOW);
   digitalWrite(ZTZ_PIN, HIGH);
   digitalWrite(ZTC_PIN, LOW);
-  digitalWrite(TSKW_POWER_PIN, LOW);
   digitalWrite(BUZZER_PIN, HIGH);
 }
 
