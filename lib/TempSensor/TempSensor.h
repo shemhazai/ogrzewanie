@@ -7,13 +7,11 @@
 
 class TempSensor {
 public:
-  TempSensor(uint8_t tempSensorPin, LiquidCrystal *aLcd, uint8_t aBuzzerPin,
-             uint8_t aTskwPin);
+  TempSensor(uint8_t tempSensorPin, LiquidCrystal *aLcd, uint8_t aBuzzerPin);
   ~TempSensor();
 
   float readTZ();
   float readTKW();
-  float readTSKW();
   float readTCO();
   float readTB();
   float readTCWU();
@@ -21,7 +19,6 @@ public:
 
   bool isTZInRange(const float temp);
   bool isTKWInRange(const float temp);
-  bool isTSKWInRange(const float temp);
   bool isTCOInRange(const float temp);
   bool isTBInRange(const float temp);
   bool isTCWUInRange(const float temp);
@@ -34,6 +31,7 @@ public:
   void setTCWUAddress(const uint8_t aTCWUAddress[]);
   void setTPAddress(const uint8_t aTPAddress[]);
 
+  void diagnose(void (*errorShutdown)());
   void tempSensorError(const char *msg);
 
 private:
@@ -42,7 +40,6 @@ private:
 
   LiquidCrystal *lcd;
   uint8_t buzzerPin;
-  uint8_t tskwPin;
 
   DallasTemperature *dallasTemperature;
   OneWire *oneWire;
