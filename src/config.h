@@ -4,8 +4,6 @@
 #include <Arduino.h>
 
 #define TEMP_SENSOR_PIN A2
-#define TSKW_PIN A1
-#define TSKW_POWER_PIN A0
 #define BUZZER_PIN 44
 #define PKW_PIN 51
 #define PCWU_PIN 52
