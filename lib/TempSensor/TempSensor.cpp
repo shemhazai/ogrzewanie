@@ -111,39 +111,27 @@ bool TempSensor::isTPInRange(const float temp) {
 }
 
 void TempSensor::setTZAddress(const uint8_t aTZAddress[]) {
-  const uint8_t ADDRESS_LEN = 8;
-  for (uint8_t i = 0; i < ADDRESS_LEN; i++)
-    TZAddress[i] = aTZAddress[i];
+  copyAddress(aTZAddress, TZAddress);
 }
 
 void TempSensor::setTKWAddress(const uint8_t aTKWAddress[]) {
-  const uint8_t ADDRESS_LEN = 8;
-  for (uint8_t i = 0; i < ADDRESS_LEN; i++)
-    TKWAddress[i] = aTKWAddress[i];
+  copyAddress(aTKWAddress, TKWAddress);
 }
 
 void TempSensor::setTCOAddress(const uint8_t aTCOAddress[]) {
-  const uint8_t ADDRESS_LEN = 8;
-  for (uint8_t i = 0; i < ADDRESS_LEN; i++)
-    TCOAddress[i] = aTCOAddress[i];
+  copyAddress(aTCOAddress, TCOAddress);
 }
 
 void TempSensor::setTBAddress(const uint8_t aTBAddress[]) {
-  const uint8_t ADDRESS_LEN = 8;
-  for (uint8_t i = 0; i < ADDRESS_LEN; i++)
-    TBAddress[i] = aTBAddress[i];
+  copyAddress(aTBAddress, TBAddress);
 }
 
 void TempSensor::setTCWUAddress(const uint8_t aTCWUAddress[]) {
-  const uint8_t ADDRESS_LEN = 8;
-  for (uint8_t i = 0; i < ADDRESS_LEN; i++)
-    TCWUAddress[i] = aTCWUAddress[i];
+  copyAddress(aTCWUAddress, TCWUAddress);
 }
 
 void TempSensor::setTPAddress(const uint8_t aTPAddress[]) {
-  const uint8_t ADDRESS_LEN = 8;
-  for (uint8_t i = 0; i < ADDRESS_LEN; i++)
-    TPAddress[i] = aTPAddress[i];
+  copyAddress(aTPAddress, TPAddress);
 }
 
 void TempSensor::tempSensorError(const char *msg) {
@@ -169,4 +157,10 @@ void TempSensor::tempSensorError(const char *msg) {
 void TempSensor::doNothing() {
   while (true)
     delay(1000);
+}
+
+void TempSensor::copyAddress(const uint8_t src[], uint8_t dest[]) {
+  const uint8_t ADDRESS_LEN = 8;
+  for (uint8_t i = 0; i < ADDRESS_LEN; i++)
+    dest[i] = src[i];
 }

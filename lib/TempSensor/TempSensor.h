@@ -38,6 +38,7 @@ public:
 
 private:
   void doNothing();
+  void copyAddress(const uint8_t src[], uint8_t dest[]);
 
   LiquidCrystal *lcd;
   uint8_t buzzerPin;
