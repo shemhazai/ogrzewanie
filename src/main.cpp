@@ -10,6 +10,9 @@ Timer timer;
 
 float tz, tkw, tskw, tco, tb, tcwu, tkg, tp;
 
+void setup();
+void loop();
+
 void initPins();
 void initLcd();
 void initTempSensor();
@@ -45,13 +48,21 @@ void printTP();
 
 inline bool shouldTurnOnPKW() { return tkw >= 40 && tskw >= 100; }
 inline bool shouldTurnOffPKW() { return tskw <= 100; }
-inline bool shouldTurnOnPCWU() { return (tb >= tcwu + 5) && (tcwu < 70); }
-inline bool shouldTurnOffPCWU() { return (tb <= tcwu + 2) || (tcwu >= 70); }
+inline bool shouldTurnOnPCWU() { return (tb >= tcwu + 5) && (tcwu < 63); }
+inline bool shouldTurnOffPCWU() { return (tb <= tcwu + 2) || (tcwu >= 65); }
 inline bool shouldTurnOnPCO() { return tz < 17; }
+inline bool shouldTurnOffPCO() { return tz >= 18; }
 inline bool shouldOpenZT() { return tco <= tkg - 1.5; }
 inline bool shouldCloseZT() { return tco >= tkg + 1.5; }
 
 int main() {
+  setup();
+  while (true)
+    loop();
+  return 0;
+}
+
+void setup() {
   initPins();
   initLcd();
   initTempSensor();
@@ -67,30 +78,28 @@ int main() {
   computeTKG();
   updateDisplay();
   controlZT(); // recursive function
+}
 
-  while (true) {
-    if (shouldTurnOnPKW()) {
-      digitalWrite(PKW_PIN, HIGH);
-    } else if (shouldTurnOffPKW()) {
-      digitalWrite(PKW_PIN, LOW);
-    }
-
-    if (shouldTurnOnPCWU()) {
-      digitalWrite(PCWU_PIN, HIGH);
-    } else if (shouldTurnOffPCWU()) {
-      digitalWrite(PCWU_PIN, LOW);
-    }
-
-    if (shouldTurnOnPCO()) {
-      digitalWrite(PCO_PIN, HIGH);
-    } else {
-      digitalWrite(PCO_PIN, LOW);
-    }
-
-    timer.update();
+void loop() {
+  if (shouldTurnOnPKW()) {
+    digitalWrite(PKW_PIN, HIGH);
+  } else if (shouldTurnOffPKW()) {
+    digitalWrite(PKW_PIN, LOW);
   }
 
-  return 0;
+  if (shouldTurnOnPCWU()) {
+    digitalWrite(PCWU_PIN, HIGH);
+  } else if (shouldTurnOffPCWU()) {
+    digitalWrite(PCWU_PIN, LOW);
+  }
+
+  if (shouldTurnOnPCO()) {
+    digitalWrite(PCO_PIN, HIGH);
+  } else if (shouldTurnOffPCO()) {
+    digitalWrite(PCO_PIN, LOW);
+  }
+
+  timer.update();
 }
 
 void initPins() {
@@ -137,7 +146,7 @@ void performTempSensorDiagnostics() {
 
   if (working) {
     digitalWrite(BUZZER_PIN, HIGH);
-    delay(300);
+    delay(200);
     digitalWrite(BUZZER_PIN, LOW);
   } else {
     stopOnError();
@@ -288,12 +297,12 @@ void controlZT() {
     digitalWrite(ZTC_PIN, HIGH);
     digitalWrite(ZTZ_PIN, LOW);
     timer.setTimeout(openZTCEnd, 3100); // 1 st.
-    timer.setTimeout(controlZT, 23100); // 20s przerwy
+    timer.setTimeout(controlZT, 23100); // 20s przerwy + 3.1s na otwarcie
   } else if (shouldCloseZT()) {
     digitalWrite(ZTZ_PIN, HIGH);
     digitalWrite(ZTC_PIN, LOW);
     timer.setTimeout(openZTZEnd, 5100); // 5/3 st.
-    timer.setTimeout(controlZT, 12100);
+    timer.setTimeout(controlZT, 12100); // 7s przerwy + 5.1s na zamknięcie
   } else {
     timer.setTimeout(controlZT, 5000);
   }
