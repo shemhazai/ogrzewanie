@@ -35,8 +35,8 @@ public:
   void tempSensorError(const char *msg);
 
 private:
-  void doNothing();
   void copyAddress(const uint8_t src[], uint8_t dest[]);
+  void doNothing();
 
   LiquidCrystal *lcd;
   uint8_t buzzerPin;

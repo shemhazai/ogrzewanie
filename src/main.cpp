@@ -44,8 +44,10 @@ inline bool shouldCloseZT() { return tco >= tkg + 1.5; }
 
 int main() {
   setup();
-  while (true)
+  while (true) {
     loop();
+  }
+
   return 0;
 }
 

@@ -163,13 +163,13 @@ void TempSensor::tempSensorError(const char *msg) {
   doNothing();
 }
 
-void TempSensor::doNothing() {
-  while (true)
-    delay(1000);
-}
-
 void TempSensor::copyAddress(const uint8_t src[], uint8_t dest[]) {
   const uint8_t ADDRESS_LEN = 8;
   for (uint8_t i = 0; i < ADDRESS_LEN; i++)
     dest[i] = src[i];
+}
+
+void TempSensor::doNothing() {
+  while (true)
+    delay(1000);
 }
