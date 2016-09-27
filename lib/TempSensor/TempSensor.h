@@ -10,6 +10,8 @@ public:
   TempSensor(uint8_t tempSensorPin, LiquidCrystal *aLcd, uint8_t aBuzzerPin);
   ~TempSensor();
 
+  void requestTemperatures();
+
   float readTZ();
   float readTKW();
   float readTCO();

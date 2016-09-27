@@ -9,7 +9,7 @@ TempSensor *tempSensor;
 Timer timer;
 
 float tz, tkw, tskw = 500, tco, tb, tcwu, tkg, tp;
-float tcwug = 64;
+float ztcwu = 64;
 
 void setup();
 void loop();
@@ -18,23 +18,26 @@ void initPins();
 void initLcd();
 void initTempSensor();
 
+void requestTemperatures();
+void requestAndReadTemperatures();
 void readTemperatures();
 void computeTKG();
 void controlZT();
-void stopOnError();
 void updateDisplay();
+
+void stopOnError();
 
 inline bool shouldTurnOnPKW() { return tkw >= 40 && tskw >= 100; }
 inline bool shouldTurnOffPKW() { return tskw <= 100; }
 inline bool shouldTurnOnPCWU() {
   const float HISTERESIS = 1;
   const float BUFFER_RESERVE = 5;
-  return (tb >= (tcwu + BUFFER_RESERVE)) && (tcwu < (tcwug - HISTERESIS));
+  return (tb >= (tcwu + BUFFER_RESERVE)) && (tcwu < (ztcwu - HISTERESIS));
 }
 inline bool shouldTurnOffPCWU() {
   const float HISTERESIS = 1;
   const float BUFFER_RESERVE = 2;
-  return (tb <= tcwu + BUFFER_RESERVE) || (tcwu >= (tcwug + HISTERESIS));
+  return (tb <= tcwu + BUFFER_RESERVE) || (tcwu >= (ztcwu + HISTERESIS));
 }
 inline bool shouldTurnOnPCO() { return tz < 17; }
 inline bool shouldTurnOffPCO() { return tz >= 18; }
@@ -62,11 +65,11 @@ void setup() {
   initLcd();
   initTempSensor();
 
-  timer.setInterval(readTemperatures, 2000);
-  timer.setInterval(computeTKG, 600000); // 10min.
+  timer.setInterval(requestTemperatures, 1000); // min. 800ms
+  timer.setInterval(computeTKG, 600000);        // 10min.
   timer.setInterval(updateDisplay, 1000);
 
-  readTemperatures();
+  requestAndReadTemperatures();
   computeTKG();
   updateDisplay();
   controlZT(); // recursive function
@@ -120,6 +123,17 @@ void initTempSensor() {
   tempSensor->setTCWUAddress(TCWUAddress);
   tempSensor->setTPAddress(TPAddress);
   tempSensor->diagnose(stopOnError);
+}
+
+void requestTemperatures() {
+  tempSensor->requestTemperatures();
+  timer.setTimeout(readTemperatures, 800);
+}
+
+void requestAndReadTemperatures() {
+  tempSensor->requestTemperatures();
+  delay(800);
+  readTemperatures();
 }
 
 void readTemperatures() {

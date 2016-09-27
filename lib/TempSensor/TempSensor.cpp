@@ -10,7 +10,8 @@ TempSensor::TempSensor(uint8_t tempSensorPin, LiquidCrystal *aLcd,
   oneWire = new OneWire(tempSensorPin);
   dallasTemperature->setOneWire(oneWire);
   dallasTemperature->begin();
-  dallasTemperature->setResolution(9);
+  dallasTemperature->setWaitForConversion(false);
+  dallasTemperature->setResolution(12);
 }
 
 TempSensor::~TempSensor() {
@@ -18,34 +19,38 @@ TempSensor::~TempSensor() {
   delete oneWire;
 }
 
+void TempSensor::requestTemperatures() {
+  dallasTemperature->requestTemperatures();
+}
+
 float TempSensor::readTZ() {
-  dallasTemperature->requestTemperaturesByAddress(TZAddress);
-  return dallasTemperature->getTempC(TZAddress);
+  float temperature = dallasTemperature->getTempC(TZAddress);
+  return temperature;
 }
 
 float TempSensor::readTKW() {
-  dallasTemperature->requestTemperaturesByAddress(TKWAddress);
-  return dallasTemperature->getTempC(TKWAddress);
+  float temperature = dallasTemperature->getTempC(TKWAddress);
+  return temperature;
 }
 
 float TempSensor::readTCO() {
-  dallasTemperature->requestTemperaturesByAddress(TCOAddress);
-  return dallasTemperature->getTempC(TCOAddress);
+  float temperature = dallasTemperature->getTempC(TCOAddress);
+  return temperature;
 }
 
 float TempSensor::readTB() {
-  dallasTemperature->requestTemperaturesByAddress(TBAddress);
-  return dallasTemperature->getTempC(TBAddress);
+  float temperature = dallasTemperature->getTempC(TBAddress);
+  return temperature;
 }
 
 float TempSensor::readTCWU() {
-  dallasTemperature->requestTemperaturesByAddress(TCWUAddress);
-  return dallasTemperature->getTempC(TCWUAddress);
+  float temperature = dallasTemperature->getTempC(TCWUAddress);
+  return temperature;
 }
 
 float TempSensor::readTP() {
-  dallasTemperature->requestTemperaturesByAddress(TPAddress);
-  return dallasTemperature->getTempC(TPAddress);
+  float temperature = dallasTemperature->getTempC(TPAddress);
+  return temperature;
 }
 
 bool TempSensor::isTZInRange(const float temp) {
@@ -143,6 +148,7 @@ void TempSensor::diagnose(void (*errorShutdown)()) {
     tempSensorError(text);
   }
 }
+
 void TempSensor::tempSensorError(const char *msg) {
   lcd->clear();
   lcd->setCursor(0, 0);
