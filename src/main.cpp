@@ -21,18 +21,8 @@ void initTempSensor();
 void readTemperatures();
 void computeTKG();
 void controlZT();
-
 void stopOnError();
-
 void updateDisplay();
-void printTSKW();
-void printTKW();
-void printTCWU();
-void printTCO();
-void printTB();
-void printTZ();
-void printTKG();
-void printTP();
 
 inline bool shouldTurnOnPKW() { return tkw >= 40 && tskw >= 100; }
 inline bool shouldTurnOffPKW() { return tskw <= 100; }
@@ -185,79 +175,38 @@ void stopOnError() {
   digitalWrite(BUZZER_PIN, HIGH);
 }
 
+inline int total(float temp) {
+  int total = (int)temp;
+  return abs(total);
+}
+
+inline int fraction(float temp) {
+  int fraction = (int)(temp * 10) % 10;
+  return abs(fraction);
+}
+
 void updateDisplay() {
+  char text[84];
+  sprintf(text, "Tskw %3d  Tkw %2d.%d\n"
+                "Tcwu %2d.%d Tco %2d.%d\n"
+                "Tb   %2d.%d Tz %c%2d.%d\n"
+                "Tkg  %2d.%d Tp  %2d.%d",
+          total(tskw), total(tkw), fraction(tkw), total(tcwu), fraction(tcwu),
+          total(tco), fraction(tco), total(tb), fraction(tb),
+          ((tz < 0) ? '-' : ' '), total(tz), fraction(tz), total(tkg),
+          fraction(tkg), total(tp), fraction(tp));
+
   lcd->clear();
-  printTSKW();
-  printTKW();
-  printTCWU();
-  printTCO();
-  printTB();
-  printTZ();
-  printTKG();
-  printTP();
-}
-
-void printTSKW() {
   lcd->setCursor(0, 0);
-  lcd->print("Tskw ");
-  lcd->print((int)tskw);
-}
 
-char buff[10];
-void formatFloat(const float temp) {
-  sprintf(buff, "%d.%d", abs((int)temp), abs((int)(temp * 10) % 10));
-}
-
-void printTKW() {
-  formatFloat(tkw);
-  lcd->setCursor(10, 0);
-  lcd->print("Tkw ");
-  lcd->print(buff);
-}
-
-void printTCWU() {
-  formatFloat(tcwu);
-  lcd->setCursor(0, 1);
-  lcd->print("Tcwu ");
-  lcd->print(buff);
-}
-
-void printTCO() {
-  formatFloat(tco);
-  lcd->setCursor(10, 1);
-  lcd->print("Tco ");
-  lcd->print(buff);
-}
-
-void printTB() {
-  formatFloat(tb);
-  lcd->setCursor(0, 2);
-  lcd->print("Tb   ");
-  lcd->print(buff);
-}
-
-void printTZ() {
-  formatFloat(tz);
-  lcd->setCursor(10, 2);
-  lcd->print("Tz ");
-  if (tz < 0) {
-    lcd->print("-");
-  } else {
-    lcd->print(" ");
+  const uint8_t len = strlen(text);
+  uint8_t line = 0;
+  for (uint8_t i = 0; i < len; i++) {
+    if (text[i] == '\n') {
+      line++;
+      lcd->setCursor(0, line);
+    } else {
+      lcd->print(text[i]);
+    }
   }
-  lcd->print(buff);
-}
-
-void printTKG() {
-  formatFloat(tkg);
-  lcd->setCursor(0, 3);
-  lcd->print("Tkg  ");
-  lcd->print(buff);
-}
-
-void printTP() {
-  formatFloat(tp);
-  lcd->setCursor(10, 3);
-  lcd->print("Tp  ");
-  lcd->print(buff);
 }
