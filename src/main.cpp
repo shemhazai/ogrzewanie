@@ -9,6 +9,7 @@ TempSensor *tempSensor;
 Timer timer;
 
 float tz, tkw, tskw = 500, tco, tb, tcwu, tkg, tp;
+float tcwug = 64;
 
 void setup();
 void loop();
@@ -35,15 +36,30 @@ void printTP();
 
 inline bool shouldTurnOnPKW() { return tkw >= 40 && tskw >= 100; }
 inline bool shouldTurnOffPKW() { return tskw <= 100; }
-inline bool shouldTurnOnPCWU() { return (tb >= tcwu + 5) && (tcwu < 63); }
-inline bool shouldTurnOffPCWU() { return (tb <= tcwu + 2) || (tcwu >= 65); }
+inline bool shouldTurnOnPCWU() {
+  const float HISTERESIS = 1;
+  const float BUFFER_RESERVE = 5;
+  return (tb >= (tcwu + BUFFER_RESERVE)) && (tcwu < (tcwug - HISTERESIS));
+}
+inline bool shouldTurnOffPCWU() {
+  const float HISTERESIS = 1;
+  const float BUFFER_RESERVE = 2;
+  return (tb <= tcwu + BUFFER_RESERVE) || (tcwu >= (tcwug + HISTERESIS));
+}
 inline bool shouldTurnOnPCO() { return tz < 17; }
 inline bool shouldTurnOffPCO() { return tz >= 18; }
-inline bool shouldOpenZT() { return tco <= tkg - 1.5; }
-inline bool shouldCloseZT() { return tco >= tkg + 1.5; }
+inline bool shouldOpenZT() {
+  const float HISTERESIS = 1.5;
+  return tco <= tkg - HISTERESIS;
+}
+inline bool shouldCloseZT() {
+  const float HISTERESIS = 1.5;
+  return tco >= tkg + HISTERESIS;
+}
 
 int main() {
   setup();
+
   while (true) {
     loop();
   }
@@ -134,8 +150,8 @@ void readTemperatures() {
 }
 
 void computeTKG() {
-  const double KG = 1.0; // nachylenie krzywej grzania
-  const double TW = 22;  // pożądana temperatura wewnątrz
+  const double KG = 1.0;  // nachylenie krzywej grzania
+  const double TW = 20.5; // pożądana temperatura wewnątrz
   tkg = KG * (TW - tz) + TW;
 }
 
