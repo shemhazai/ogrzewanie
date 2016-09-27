@@ -9,7 +9,7 @@ TempSensor *tempSensor;
 Timer timer;
 
 float tz, tkw, tskw = 500, tco, tb, tcwu, tkg, tp;
-float ztcwu = 64;
+float ztcwu = 66;
 
 void setup();
 void loop();
@@ -32,7 +32,7 @@ inline bool shouldTurnOffPKW() { return tskw <= 100; }
 inline bool shouldTurnOnPCWU() {
   const float HISTERESIS = 1;
   const float BUFFER_RESERVE = 5;
-  return (tb >= (tcwu + BUFFER_RESERVE)) && (tcwu < (ztcwu - HISTERESIS));
+  return (tb >= (tcwu + BUFFER_RESERVE)) && (tcwu <= (ztcwu - HISTERESIS));
 }
 inline bool shouldTurnOffPCWU() {
   const float HISTERESIS = 1;
