@@ -126,13 +126,15 @@ void initTempSensor() {
 }
 
 void requestTemperatures() {
+  const int MEASUREMENT_TIME = 800;
   tempSensor->requestTemperatures();
-  timer.setTimeout(readTemperatures, 800);
+  timer.setTimeout(readTemperatures, MEASUREMENT_TIME);
 }
 
 void requestAndReadTemperatures() {
+  const int MEASUREMENT_TIME = 800;
   tempSensor->requestTemperatures();
-  delay(800);
+  delay(MEASUREMENT_TIME);
   readTemperatures();
 }
 
