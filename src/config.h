@@ -29,4 +29,18 @@ const uint8_t TCOAddress[] = {0x28, 0xFF, 0x49, 0x35, 0x64, 0x14, 0x01, 0x29};
 const uint8_t TBAddress[] = {0x28, 0xB9, 0xE9, 0xC6, 0x07, 0x00, 0x00, 0xEC};
 const uint8_t TCWUAddress[] = {0x28, 0x06, 0xC0, 0x04, 0x07, 0x00, 0x00, 0xFA};
 const uint8_t TPAddress[] = {0x28, 0x38, 0xE7, 0xC6, 0x07, 0x00, 0x00, 0x93};
+
+struct Config {
+  float tz;    // Temp. zewnętrzna
+  float tkw;   // Temp. kotła węglowego
+  float tskw;  // Temp. spalin kotła węglowego
+  float tco;   // Temp. centralnego ogrzewania
+  float tb;    // Temp. bufora
+  float tcwu;  // Temp. ciepłej wody użytkowej
+  float tkg;   // Temp. krzywa grzewcza
+  float tp;    // Temp. powrotu
+  float ztcwu; // Zadana temp. ciepłej wody użytkowej
+  float kg;    // Krzywa grzewcza
+  float tw;    // Pożadana temp. wewnątrz
+};
 #endif
