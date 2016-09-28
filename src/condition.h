@@ -19,7 +19,7 @@ inline bool shouldTurnOnPCWU(struct Config *conf) {
 inline bool shouldTurnOffPCWU(struct Config *conf) {
   const float HISTERESIS = 1;
   const float BUFFER_RESERVE = 2;
-  return (conf->tb <= conf->tcwu + BUFFER_RESERVE) ||
+  return ((conf->tb <= conf->tcwu) + BUFFER_RESERVE) ||
          (conf->tcwu >= (conf->ztcwu + HISTERESIS));
 }
 

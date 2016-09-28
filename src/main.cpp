@@ -19,7 +19,6 @@ void initLcd();
 void initTempSensor();
 void initTimer();
 
-void requestTemperatures();
 void requestAndReadTemperatures();
 void readTemperatures();
 void computeTKG();
@@ -113,12 +112,12 @@ void initTempSensor() {
 }
 
 void initTimer() {
-  timer.setInterval(requestTemperatures, 1000); // min. 800ms
-  timer.setInterval(computeTKG, 600000);        // 10min.
+  timer.setInterval(requestAndReadTemperatures, 1000); // min. 800ms
+  timer.setInterval(computeTKG, 600000);               // 10min.
   timer.setInterval(updateDisplay, 1000);
 }
 
-void requestTemperatures() {
+void requestAndReadTemperatures() {
   const int MEASUREMENT_TIME = 800;
   tempSensor->requestTemperatures();
   timer.setTimeout(readTemperatures, MEASUREMENT_TIME);
@@ -189,10 +188,10 @@ inline int fraction(float temp) {
 
 void updateDisplay() {
   char text[84];
-  sprintf(text, "Tskw %3d  Tkw %2d.%d\n"
-                "Tcwu %2d.%d Tco %2d.%d\n"
-                "Tb   %2d.%d Tz %c%2d.%d\n"
-                "Tkg  %2d.%d Tp  %2d.%d",
+  sprintf(text, "Tskw %3d  Tkw %2d.%1d\n"
+                "Tcwu %2d.%1d Tco %2d.%1d\n"
+                "Tb   %2d.%1d Tz %c%2d.%1d\n"
+                "Tkg  %2d.%1d Tp  %2d.%1d",
           total(conf.tskw), total(conf.tkw), fraction(conf.tkw),
           total(conf.tcwu), fraction(conf.tcwu), total(conf.tco),
           fraction(conf.tco), total(conf.tb), fraction(conf.tb),
