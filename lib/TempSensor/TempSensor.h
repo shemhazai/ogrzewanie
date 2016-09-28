@@ -3,11 +3,13 @@
 
 #include <DallasTemperature.h>
 #include <LiquidCrystal.h>
+#include <Max6675.h>
 #include <OneWire.h>
 
 class TempSensor {
 public:
-  TempSensor(uint8_t tempSensorPin, LiquidCrystal *aLcd, uint8_t aBuzzerPin);
+  TempSensor(uint8_t tempSensorPin, LiquidCrystal *aLcd, uint8_t aBuzzerPin,
+             uint8_t maxSCLK, uint8_t maxCS, uint8_t maxMISO);
   ~TempSensor();
 
   void requestTemperatures();
@@ -18,6 +20,7 @@ public:
   float readTB();
   float readTCWU();
   float readTP();
+  float readTSKW();
 
   bool isTZInRange(const float temp);
   bool isTKWInRange(const float temp);
@@ -25,6 +28,7 @@ public:
   bool isTBInRange(const float temp);
   bool isTCWUInRange(const float temp);
   bool isTPInRange(const float temp);
+  bool isTSKWInRange(const float temp);
 
   void setTZAddress(const uint8_t aTZAddress[]);
   void setTKWAddress(const uint8_t aTKWAddress[]);
@@ -45,6 +49,8 @@ private:
 
   DallasTemperature *dallasTemperature;
   OneWire *oneWire;
+
+  MAX6675 *thermocouple;
 
   uint8_t TZAddress[8];
   uint8_t TKWAddress[8];

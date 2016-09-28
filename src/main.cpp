@@ -72,7 +72,6 @@ void loop() {
 }
 
 void initConfig() {
-  conf.tskw = 500;
   conf.ztcwu = 66;
   conf.kg = 0.9;
   conf.tw = 20.5;
@@ -96,7 +95,8 @@ void initLcd() {
 }
 
 void initTempSensor() {
-  tempSensor = new TempSensor(TEMP_SENSOR_PIN, lcd, BUZZER_PIN);
+  tempSensor =
+      new TempSensor(TEMP_SENSOR_PIN, lcd, BUZZER_PIN, MAX_SCK, MAX_CS, MAX_SO);
   tempSensor->setTZAddress(TZAddress);
   tempSensor->setTKWAddress(TKWAddress);
   tempSensor->setTCOAddress(TCOAddress);
@@ -130,11 +130,13 @@ void readTemperatures() {
   conf.tb = tempSensor->readTB();
   conf.tcwu = tempSensor->readTCWU();
   conf.tp = tempSensor->readTP();
+  conf.tskw = tempSensor->readTSKW();
 
   bool working =
       tempSensor->isTZInRange(conf.tz) && tempSensor->isTKWInRange(conf.tkw) &&
       tempSensor->isTCOInRange(conf.tco) && tempSensor->isTBInRange(conf.tb) &&
-      tempSensor->isTCWUInRange(conf.tcwu) && tempSensor->isTPInRange(conf.tp);
+      tempSensor->isTCWUInRange(conf.tcwu) &&
+      tempSensor->isTPInRange(conf.tp) && tempSensor->isTSKWInRange(conf.tskw);
 
   if (!working) {
     tempSensor->diagnose(stopOnError);

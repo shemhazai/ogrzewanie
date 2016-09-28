@@ -2,7 +2,8 @@
 #include <Arduino.h>
 
 TempSensor::TempSensor(uint8_t tempSensorPin, LiquidCrystal *aLcd,
-                       uint8_t aBuzzerPin) {
+                       uint8_t aBuzzerPin, uint8_t maxSCLK, uint8_t maxCS,
+                       uint8_t maxMISO) {
   lcd = aLcd;
   buzzerPin = aBuzzerPin;
 
@@ -12,11 +13,14 @@ TempSensor::TempSensor(uint8_t tempSensorPin, LiquidCrystal *aLcd,
   dallasTemperature->begin();
   dallasTemperature->setWaitForConversion(false);
   dallasTemperature->setResolution(12);
+
+  thermocouple = new MAX6675(maxSCLK, maxCS, maxMISO);
 }
 
 TempSensor::~TempSensor() {
   delete dallasTemperature;
   delete oneWire;
+  delete thermocouple;
 }
 
 void TempSensor::requestTemperatures() {
@@ -50,6 +54,11 @@ float TempSensor::readTCWU() {
 
 float TempSensor::readTP() {
   float temperature = dallasTemperature->getTempC(TPAddress);
+  return temperature;
+}
+
+float TempSensor::readTSKW() {
+  float temperature = thermocouple->readCelsius();
   return temperature;
 }
 
@@ -89,6 +98,12 @@ bool TempSensor::isTPInRange(const float temp) {
   return temp > MIN_TEMP && temp < MAX_TEMP;
 }
 
+bool TempSensor::isTSKWInRange(const float temp) {
+  const float MAX_TEMP = 700;
+  const float MIN_TEMP = 0;
+  return temp > MIN_TEMP && temp < MAX_TEMP;
+}
+
 void TempSensor::setTZAddress(const uint8_t aTZAddress[]) {
   copyAddress(aTZAddress, TZAddress);
 }
@@ -120,6 +135,7 @@ void TempSensor::diagnose(void (*errorShutdown)()) {
   float tb = readTB();
   float tcwu = readTCWU();
   float tp = readTP();
+  float tskw = readTSKW();
 
   bool isTZWorking = isTZInRange(tz);
   bool isTKWWorking = isTKWInRange(tkw);
@@ -127,9 +143,10 @@ void TempSensor::diagnose(void (*errorShutdown)()) {
   bool isTBWorking = isTBInRange(tb);
   bool isTCWUWorking = isTCWUInRange(tcwu);
   bool isTPWorking = isTPInRange(tp);
+  bool isTSKWWorking = isTSKWInRange(tskw);
 
   bool working = isTZWorking && isTKWWorking && isTCOWorking && isTBWorking &&
-                 isTBWorking && isTCWUWorking && isTPWorking;
+                 isTBWorking && isTCWUWorking && isTPWorking && isTSKWWorking;
 
   if (working) {
     digitalWrite(buzzerPin, HIGH);
@@ -141,10 +158,12 @@ void TempSensor::diagnose(void (*errorShutdown)()) {
     char text[84];
     sprintf(text, "Tcwu: %c  Tz: %c\n"
                   "Tkw : %c  Tb: %c\n"
-                  "Tco : %c  Tp: %c",
+                  "Tco : %c  Tp: %c\n"
+                  "Tskw: %c",
             (isTCWUWorking ? '+' : '-'), (isTZWorking ? '+' : '-'),
             (isTKWWorking ? '+' : '-'), (isTBWorking ? '+' : '-'),
-            (isTCOWorking ? '+' : '-'), (isTPWorking ? '+' : '-'));
+            (isTCOWorking ? '+' : '-'), (isTPWorking ? '+' : '-'),
+            (isTSKWWorking ? '+' : '-'));
     tempSensorError(text);
   }
 }

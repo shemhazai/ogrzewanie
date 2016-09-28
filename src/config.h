@@ -11,6 +11,10 @@
 #define ZTC_PIN 49
 #define ZTZ_PIN 48
 
+#define MAX_SCK 33
+#define MAX_CS 34
+#define MAX_SO 35
+
 #define RS 13
 #define RW 12
 #define ENABLE 11
