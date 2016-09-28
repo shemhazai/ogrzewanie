@@ -1,22 +1,23 @@
+#include "condition.h"
 #include "config.h"
 #include <Arduino.h>
 #include <LiquidCrystal.h>
 #include <TempSensor.h>
 #include <Timer.h>
 
+struct Config conf;
 LiquidCrystal *lcd;
 TempSensor *tempSensor;
 Timer timer;
 
-float tz, tkw, tskw = 500, tco, tb, tcwu, tkg, tp;
-float ztcwu = 66;
-
 void setup();
 void loop();
 
+void initConfig();
 void initPins();
 void initLcd();
 void initTempSensor();
+void initTimer();
 
 void requestTemperatures();
 void requestAndReadTemperatures();
@@ -26,29 +27,6 @@ void controlZT();
 void updateDisplay();
 
 void stopOnError();
-
-inline bool shouldTurnOnPKW() { return tkw >= 40 && tskw >= 100; }
-inline bool shouldTurnOffPKW() { return tskw <= 100; }
-inline bool shouldTurnOnPCWU() {
-  const float HISTERESIS = 1;
-  const float BUFFER_RESERVE = 5;
-  return (tb >= (tcwu + BUFFER_RESERVE)) && (tcwu <= (ztcwu - HISTERESIS));
-}
-inline bool shouldTurnOffPCWU() {
-  const float HISTERESIS = 1;
-  const float BUFFER_RESERVE = 2;
-  return (tb <= tcwu + BUFFER_RESERVE) || (tcwu >= (ztcwu + HISTERESIS));
-}
-inline bool shouldTurnOnPCO() { return tz < 17; }
-inline bool shouldTurnOffPCO() { return tz >= 18; }
-inline bool shouldOpenZT() {
-  const float HISTERESIS = 1.5;
-  return tco <= tkg - HISTERESIS;
-}
-inline bool shouldCloseZT() {
-  const float HISTERESIS = 1.5;
-  return tco >= tkg + HISTERESIS;
-}
 
 int main() {
   setup();
@@ -61,40 +39,44 @@ int main() {
 }
 
 void setup() {
+  initConfig();
   initPins();
   initLcd();
   initTempSensor();
+  initTimer();
 
-  timer.setInterval(requestTemperatures, 1000); // min. 800ms
-  timer.setInterval(computeTKG, 600000);        // 10min.
-  timer.setInterval(updateDisplay, 1000);
-
-  requestAndReadTemperatures();
   computeTKG();
-  updateDisplay();
   controlZT(); // recursive function
+  updateDisplay();
 }
 
 void loop() {
-  if (shouldTurnOnPKW()) {
+  if (shouldTurnOnPKW(&conf)) {
     digitalWrite(PKW_PIN, HIGH);
-  } else if (shouldTurnOffPKW()) {
+  } else if (shouldTurnOffPKW(&conf)) {
     digitalWrite(PKW_PIN, LOW);
   }
 
-  if (shouldTurnOnPCWU()) {
+  if (shouldTurnOnPCWU(&conf)) {
     digitalWrite(PCWU_PIN, HIGH);
-  } else if (shouldTurnOffPCWU()) {
+  } else if (shouldTurnOffPCWU(&conf)) {
     digitalWrite(PCWU_PIN, LOW);
   }
 
-  if (shouldTurnOnPCO()) {
+  if (shouldTurnOnPCO(&conf)) {
     digitalWrite(PCO_PIN, HIGH);
-  } else if (shouldTurnOffPCO()) {
+  } else if (shouldTurnOffPCO(&conf)) {
     digitalWrite(PCO_PIN, LOW);
   }
 
   timer.update();
+}
+
+void initConfig() {
+  conf.tskw = 500;
+  conf.ztcwu = 66;
+  conf.kg = 0.9;
+  conf.tw = 20.5;
 }
 
 void initPins() {
@@ -123,6 +105,17 @@ void initTempSensor() {
   tempSensor->setTCWUAddress(TCWUAddress);
   tempSensor->setTPAddress(TPAddress);
   tempSensor->diagnose(stopOnError);
+
+  const int MEASUREMENT_TIME = 800;
+  tempSensor->requestTemperatures();
+  delay(MEASUREMENT_TIME);
+  readTemperatures();
+}
+
+void initTimer() {
+  timer.setInterval(requestTemperatures, 1000); // min. 800ms
+  timer.setInterval(computeTKG, 600000);        // 10min.
+  timer.setInterval(updateDisplay, 1000);
 }
 
 void requestTemperatures() {
@@ -131,24 +124,18 @@ void requestTemperatures() {
   timer.setTimeout(readTemperatures, MEASUREMENT_TIME);
 }
 
-void requestAndReadTemperatures() {
-  const int MEASUREMENT_TIME = 800;
-  tempSensor->requestTemperatures();
-  delay(MEASUREMENT_TIME);
-  readTemperatures();
-}
-
 void readTemperatures() {
-  tz = tempSensor->readTZ();
-  tkw = tempSensor->readTKW();
-  tco = tempSensor->readTCO();
-  tb = tempSensor->readTB();
-  tcwu = tempSensor->readTCWU();
-  tp = tempSensor->readTP();
+  conf.tz = tempSensor->readTZ();
+  conf.tkw = tempSensor->readTKW();
+  conf.tco = tempSensor->readTCO();
+  conf.tb = tempSensor->readTB();
+  conf.tcwu = tempSensor->readTCWU();
+  conf.tp = tempSensor->readTP();
 
-  bool working = tempSensor->isTZInRange(tz) && tempSensor->isTKWInRange(tkw) &&
-                 tempSensor->isTCOInRange(tco) && tempSensor->isTBInRange(tb) &&
-                 tempSensor->isTCWUInRange(tcwu) && tempSensor->isTPInRange(tp);
+  bool working =
+      tempSensor->isTZInRange(conf.tz) && tempSensor->isTKWInRange(conf.tkw) &&
+      tempSensor->isTCOInRange(conf.tco) && tempSensor->isTBInRange(conf.tb) &&
+      tempSensor->isTCWUInRange(conf.tcwu) && tempSensor->isTPInRange(conf.tp);
 
   if (!working) {
     tempSensor->diagnose(stopOnError);
@@ -156,21 +143,20 @@ void readTemperatures() {
 }
 
 void computeTKG() {
-  const double KG = 1.0;  // nachylenie krzywej grzania
-  const double TW = 20.5; // pożądana temperatura wewnątrz
-  tkg = KG * (TW - tz) + TW;
+  // kg - krzywa grzewcza, tw - temperatura wewnątrz
+  conf.tkg = conf.kg * (conf.tw - conf.tz) + conf.tw;
 }
 
 void openZTCEnd() { digitalWrite(ZTC_PIN, LOW); }
 void openZTZEnd() { digitalWrite(ZTZ_PIN, LOW); }
 
 void controlZT() {
-  if (shouldOpenZT()) {
+  if (shouldOpenZT(&conf)) {
     digitalWrite(ZTC_PIN, HIGH);
     digitalWrite(ZTZ_PIN, LOW);
     timer.setTimeout(openZTCEnd, 3100); // 1 st.
     timer.setTimeout(controlZT, 23100); // 20s przerwy + 3.1s na otwarcie
-  } else if (shouldCloseZT()) {
+  } else if (shouldCloseZT(&conf)) {
     digitalWrite(ZTZ_PIN, HIGH);
     digitalWrite(ZTC_PIN, LOW);
     timer.setTimeout(openZTZEnd, 5100); // 5/3 st.
@@ -207,10 +193,12 @@ void updateDisplay() {
                 "Tcwu %2d.%d Tco %2d.%d\n"
                 "Tb   %2d.%d Tz %c%2d.%d\n"
                 "Tkg  %2d.%d Tp  %2d.%d",
-          total(tskw), total(tkw), fraction(tkw), total(tcwu), fraction(tcwu),
-          total(tco), fraction(tco), total(tb), fraction(tb),
-          ((tz < 0) ? '-' : ' '), total(tz), fraction(tz), total(tkg),
-          fraction(tkg), total(tp), fraction(tp));
+          total(conf.tskw), total(conf.tkw), fraction(conf.tkw),
+          total(conf.tcwu), fraction(conf.tcwu), total(conf.tco),
+          fraction(conf.tco), total(conf.tb), fraction(conf.tb),
+          ((conf.tz < 0) ? '-' : ' '), total(conf.tz), fraction(conf.tz),
+          total(conf.tkg), fraction(conf.tkg), total(conf.tp),
+          fraction(conf.tp));
 
   lcd->clear();
   lcd->setCursor(0, 0);
