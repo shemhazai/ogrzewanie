@@ -155,7 +155,6 @@ void TempSensor::tempSensorError(const char *msg) {
 
   const uint8_t len = strlen(msg);
   uint8_t line = 0;
-  lcd->setCursor(0, line);
   for (uint8_t i = 0; i < len; i++) {
     if (msg[i] == '\n') {
       line++;
