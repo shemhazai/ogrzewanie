@@ -24,9 +24,9 @@ void readTemperatures();
 void computeTKG();
 void controlZT();
 void updateDisplay();
+void printText(const char *text);
 
 void stopOnError();
-void printText(const char *text);
 
 int main() {
   setup();
@@ -197,17 +197,6 @@ void controlZT() {
   }
 }
 
-void stopOnError() {
-  timer.deleteAllTimers();
-
-  digitalWrite(PKW_PIN, HIGH);
-  digitalWrite(PCWU_PIN, LOW);
-  digitalWrite(PCO_PIN, LOW);
-  digitalWrite(ZTZ_PIN, HIGH);
-  digitalWrite(ZTC_PIN, LOW);
-  digitalWrite(BUZZER_PIN, HIGH);
-}
-
 inline int total(float temp) {
   int total = (int)temp;
   return abs(total);
@@ -248,4 +237,15 @@ void printText(const char *text) {
       lcd->print(text[i]);
     }
   }
+}
+
+void stopOnError() {
+  timer.deleteAllTimers();
+
+  digitalWrite(PKW_PIN, HIGH);
+  digitalWrite(PCWU_PIN, LOW);
+  digitalWrite(PCO_PIN, LOW);
+  digitalWrite(ZTZ_PIN, HIGH);
+  digitalWrite(ZTC_PIN, LOW);
+  digitalWrite(BUZZER_PIN, HIGH);
 }
