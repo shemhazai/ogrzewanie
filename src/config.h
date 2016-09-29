@@ -50,7 +50,7 @@ struct Config {
   float tbh;   // Temp. bufora, histereza
   float minrb; // Min. rezerwa bufora, o ile tb musi być wyższa od tcwu aby nie
                // kończyć grzać cwu.
-  float maxrb; // Max. rezerwa bufora, o ile tb musi być wyższa, żeby zacząć
-               // grzać cwu
+  float maxrb; // Max. rezerwa bufora, o ile tb musi być wyższa od tcwu, żeby
+               // zacząć grzać cwu
 };
 #endif
