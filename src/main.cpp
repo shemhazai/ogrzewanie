@@ -75,6 +75,10 @@ void initConfig() {
   conf.ztcwu = 66;
   conf.kg = 0.9;
   conf.tw = 20.5;
+  conf.zth = 1.5;
+  conf.tbh = 1.0;
+  conf.minrb = 2.0;
+  conf.maxrb = 5.0;
 }
 
 void initPins() {
@@ -95,8 +99,8 @@ void initLcd() {
 }
 
 void initTempSensor() {
-  tempSensor =
-      new TempSensor(TEMP_SENSOR_PIN, lcd, BUZZER_PIN, MAX_SCK, MAX_CS, MAX_SO);
+  tempSensor = new TempSensor(TEMP_SENSOR_PIN, lcd, BUZZER_PIN);
+  tempSensor->setMAX6675Pins(MAX_SCK, MAX_CS, MAX_SO);
   tempSensor->setTZAddress(TZAddress);
   tempSensor->setTKWAddress(TKWAddress);
   tempSensor->setTCOAddress(TCOAddress);

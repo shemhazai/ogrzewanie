@@ -36,7 +36,8 @@ byte MAX6675::spiread() {
   int i;
   byte data = 0;
 
-  for (i = 7; i >= 0; i--) {
+  const int LEN = 7;
+  for (i = LEN; i >= 0; i--) {
     digitalWrite(sclk, LOW);
     delay(1);
     if (digitalRead(miso))

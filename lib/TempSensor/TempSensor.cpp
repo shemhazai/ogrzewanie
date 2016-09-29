@@ -2,8 +2,7 @@
 #include <Arduino.h>
 
 TempSensor::TempSensor(uint8_t tempSensorPin, LiquidCrystal *aLcd,
-                       uint8_t aBuzzerPin, uint8_t maxSCLK, uint8_t maxCS,
-                       uint8_t maxMISO) {
+                       uint8_t aBuzzerPin) {
   lcd = aLcd;
   buzzerPin = aBuzzerPin;
 
@@ -14,13 +13,19 @@ TempSensor::TempSensor(uint8_t tempSensorPin, LiquidCrystal *aLcd,
   dallasTemperature->setWaitForConversion(false);
   dallasTemperature->setResolution(12);
 
-  thermocouple = new MAX6675(maxSCLK, maxCS, maxMISO);
+  thermocouple = NULL;
 }
 
 TempSensor::~TempSensor() {
   delete dallasTemperature;
   delete oneWire;
   delete thermocouple;
+}
+
+void TempSensor::setMAX6675Pins(uint8_t sclk, uint8_t cs, uint8_t miso) {
+  if (thermocouple != NULL)
+    delete thermocouple;
+  thermocouple = new MAX6675(sclk, cs, miso);
 }
 
 void TempSensor::requestTemperatures() {
@@ -99,6 +104,9 @@ bool TempSensor::isTPInRange(const float temp) {
 }
 
 bool TempSensor::isTSKWInRange(const float temp) {
+  if (thermocouple == NULL)
+    return -999;
+
   const float MAX_TEMP = 700;
   const float MIN_TEMP = 0;
   return temp > MIN_TEMP && temp < MAX_TEMP;

@@ -11,9 +11,9 @@
 #define ZTC_PIN 49
 #define ZTZ_PIN 48
 
-#define MAX_SCK 33
-#define MAX_CS 34
-#define MAX_SO 35
+#define MAX_SCK 22
+#define MAX_CS 24
+#define MAX_SO 23
 
 #define RS 13
 #define RW 12
@@ -46,5 +46,11 @@ struct Config {
   float ztcwu; // Zadana temp. ciepłej wody użytkowej
   float kg;    // Krzywa grzewcza
   float tw;    // Pożadana temp. wewnątrz
+  float zth;   // Zawór trójdrogowy, histereza
+  float tbh;   // Temp. bufora, histereza
+  float minrb; // Min. rezerwa bufora, o ile tb musi być wyższa od tcwu aby nie
+               // kończyć grzać cwu.
+  float maxrb; // Max. rezerwa bufora, o ile tb musi być wyższa, żeby zacząć
+               // grzać cwu
 };
 #endif

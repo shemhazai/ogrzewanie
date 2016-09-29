@@ -4,23 +4,19 @@
 #include "config.h"
 
 inline bool shouldTurnOnPKW(struct Config *conf) {
-  return conf->tkw >= 40 && conf->tskw >= 100;
+  return conf->tkw >= 40 && conf->tskw >= 110;
 }
 
 inline bool shouldTurnOffPKW(struct Config *conf) { return conf->tskw <= 100; }
 
 inline bool shouldTurnOnPCWU(struct Config *conf) {
-  const float HISTERESIS = 1;
-  const float BUFFER_RESERVE = 5;
-  return (conf->tb >= (conf->tcwu + BUFFER_RESERVE)) &&
-         (conf->tcwu <= (conf->ztcwu - HISTERESIS));
+  return (conf->tb >= (conf->tcwu + conf->maxrb)) &&
+         (conf->tcwu <= (conf->ztcwu - conf->tbh));
 }
 
 inline bool shouldTurnOffPCWU(struct Config *conf) {
-  const float HISTERESIS = 1;
-  const float BUFFER_RESERVE = 2;
-  return ((conf->tb <= conf->tcwu) + BUFFER_RESERVE) ||
-         (conf->tcwu >= (conf->ztcwu + HISTERESIS));
+  return ((conf->tb <= conf->tcwu) + conf->minrb) ||
+         (conf->tcwu >= (conf->ztcwu + conf->tbh));
 }
 
 inline bool shouldTurnOnPCO(struct Config *conf) { return conf->tz < 17; }
@@ -28,13 +24,11 @@ inline bool shouldTurnOnPCO(struct Config *conf) { return conf->tz < 17; }
 inline bool shouldTurnOffPCO(struct Config *conf) { return conf->tz >= 18; }
 
 inline bool shouldOpenZT(struct Config *conf) {
-  const float HISTERESIS = 1.5;
-  return conf->tco <= conf->tkg - HISTERESIS;
+  return conf->tco <= conf->tkg - conf->zth;
 }
 
 inline bool shouldCloseZT(struct Config *conf) {
-  const float HISTERESIS = 1.5;
-  return conf->tco >= conf->tkg + HISTERESIS;
+  return conf->tco >= conf->tkg + conf->zth;
 }
 
 #endif

@@ -8,9 +8,10 @@
 
 class TempSensor {
 public:
-  TempSensor(uint8_t tempSensorPin, LiquidCrystal *aLcd, uint8_t aBuzzerPin,
-             uint8_t maxSCLK, uint8_t maxCS, uint8_t maxMISO);
+  TempSensor(uint8_t tempSensorPin, LiquidCrystal *aLcd, uint8_t aBuzzerPin);
   ~TempSensor();
+
+  void setMAX6675Pins(uint8_t sclk, uint8_t cs, uint8_t miso);
 
   void requestTemperatures();
 
