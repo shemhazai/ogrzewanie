@@ -26,14 +26,12 @@ void controlZT();
 void updateDisplay();
 
 void stopOnError();
+void printText(const char *text);
 
 int main() {
   setup();
-
-  while (true) {
+  while (true)
     loop();
-  }
-
   return 0;
 }
 
@@ -44,27 +42,32 @@ void setup() {
   initTempSensor();
   initTimer();
 
+  // beep
+  digitalWrite(BUZZER_PIN, HIGH);
+  delay(150);
+  digitalWrite(BUZZER_PIN, LOW);
+
   computeTKG();
   controlZT(); // recursive function
   updateDisplay();
 }
 
 void loop() {
-  if (shouldTurnOnPKW(&conf)) {
+  if (shouldTurnOnPKW(conf)) {
     digitalWrite(PKW_PIN, HIGH);
-  } else if (shouldTurnOffPKW(&conf)) {
+  } else if (shouldTurnOffPKW(conf)) {
     digitalWrite(PKW_PIN, LOW);
   }
 
-  if (shouldTurnOnPCWU(&conf)) {
+  if (shouldTurnOnPCWU(conf)) {
     digitalWrite(PCWU_PIN, HIGH);
-  } else if (shouldTurnOffPCWU(&conf)) {
+  } else if (shouldTurnOffPCWU(conf)) {
     digitalWrite(PCWU_PIN, LOW);
   }
 
-  if (shouldTurnOnPCO(&conf)) {
+  if (shouldTurnOnPCO(conf)) {
     digitalWrite(PCO_PIN, HIGH);
-  } else if (shouldTurnOffPCO(&conf)) {
+  } else if (shouldTurnOffPCO(conf)) {
     digitalWrite(PCO_PIN, LOW);
   }
 
@@ -76,9 +79,11 @@ void initConfig() {
   conf.kg = 0.9;
   conf.tw = 20.5;
   conf.zth = 1.5;
-  conf.tbh = 1.0;
+  conf.tcwuh = 1.0;
   conf.minrb = 2.0;
   conf.maxrb = 5.0;
+  conf.ztos = 1.0;
+  conf.ztzs = 1.6;
 }
 
 void initPins() {
@@ -99,7 +104,7 @@ void initLcd() {
 }
 
 void initTempSensor() {
-  tempSensor = new TempSensor(TEMP_SENSOR_PIN, lcd, BUZZER_PIN);
+  tempSensor = new TempSensor(TEMP_SENSOR_PIN);
   tempSensor->setMAX6675Pins(MAX_SCK, MAX_CS, MAX_SO);
   tempSensor->setTZAddress(TZAddress);
   tempSensor->setTKWAddress(TKWAddress);
@@ -107,7 +112,6 @@ void initTempSensor() {
   tempSensor->setTBAddress(TBAddress);
   tempSensor->setTCWUAddress(TCWUAddress);
   tempSensor->setTPAddress(TPAddress);
-  tempSensor->diagnose(stopOnError);
 
   const int MEASUREMENT_TIME = 800;
   tempSensor->requestTemperatures();
@@ -136,14 +140,32 @@ void readTemperatures() {
   conf.tp = tempSensor->readTP();
   conf.tskw = tempSensor->readTSKW();
 
-  bool working =
-      tempSensor->isTZInRange(conf.tz) && tempSensor->isTKWInRange(conf.tkw) &&
-      tempSensor->isTCOInRange(conf.tco) && tempSensor->isTBInRange(conf.tb) &&
-      tempSensor->isTCWUInRange(conf.tcwu) &&
-      tempSensor->isTPInRange(conf.tp) && tempSensor->isTSKWInRange(conf.tskw);
+  bool isTZWorking = tempSensor->isTZInRange(conf.tz);
+  bool isTKWWorking = tempSensor->isTKWInRange(conf.tkw);
+  bool isTCOWorking = tempSensor->isTCOInRange(conf.tco);
+  bool isTBWorking = tempSensor->isTBInRange(conf.tb);
+  bool isTCWUWorking = tempSensor->isTCWUInRange(conf.tcwu);
+  bool isTPWorking = tempSensor->isTPInRange(conf.tp);
+  bool isTSKWWorking = tempSensor->isTSKWInRange(conf.tskw);
+
+  bool working = isTZWorking && isTKWWorking && isTCOWorking && isTBWorking &&
+                 isTCWUWorking && isTPWorking && isTSKWWorking;
 
   if (!working) {
-    tempSensor->diagnose(stopOnError);
+    stopOnError();
+
+    char text[84];
+    sprintf(text, "Tcwu: %c  Tz: %c\n"
+                  "Tkw : %c  Tb: %c\n"
+                  "Tco : %c  Tp: %c\n"
+                  "Tskw: %c",
+            (isTCWUWorking ? '+' : '-'), (isTZWorking ? '+' : '-'),
+            (isTKWWorking ? '+' : '-'), (isTBWorking ? '+' : '-'),
+            (isTCOWorking ? '+' : '-'), (isTPWorking ? '+' : '-'),
+            (isTSKWWorking ? '+' : '-'));
+    printText(text);
+    while (true)
+      delay(1000);
   }
 }
 
@@ -156,16 +178,20 @@ void openZTCEnd() { digitalWrite(ZTC_PIN, LOW); }
 void openZTZEnd() { digitalWrite(ZTZ_PIN, LOW); }
 
 void controlZT() {
-  if (shouldOpenZT(&conf)) {
+  if (shouldOpenZT(conf)) {
     digitalWrite(ZTC_PIN, HIGH);
     digitalWrite(ZTZ_PIN, LOW);
-    timer.setTimeout(openZTCEnd, 3100); // 1 st.
-    timer.setTimeout(controlZT, 23100); // 20s przerwy + 3.1s na otwarcie
-  } else if (shouldCloseZT(&conf)) {
+
+    const int openTime = (int)(conf.ztos * 3.111); // 280s / 90st.
+    timer.setTimeout(openZTCEnd, openTime);
+    timer.setTimeout(controlZT, openTime + 20000);
+  } else if (shouldCloseZT(conf)) {
     digitalWrite(ZTZ_PIN, HIGH);
     digitalWrite(ZTC_PIN, LOW);
-    timer.setTimeout(openZTZEnd, 5100); // 5/3 st.
-    timer.setTimeout(controlZT, 12100); // 7s przerwy + 5.1s na zamknięcie
+
+    const int closeTime = (int)(conf.ztzs * 3.111); // 280s / 90st.
+    timer.setTimeout(openZTZEnd, closeTime);
+    timer.setTimeout(controlZT, closeTime + 7000);
   } else {
     timer.setTimeout(controlZT, 5000);
   }
@@ -205,6 +231,10 @@ void updateDisplay() {
           total(conf.tkg), fraction(conf.tkg), total(conf.tp),
           fraction(conf.tp));
 
+  printText(text);
+}
+
+void printText(const char *text) {
   lcd->clear();
   lcd->setCursor(0, 0);
 

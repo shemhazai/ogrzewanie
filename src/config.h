@@ -47,10 +47,12 @@ struct Config {
   float kg;    // Krzywa grzewcza
   float tw;    // Pożadana temp. wewnątrz
   float zth;   // Zawór trójdrogowy, histereza
-  float tbh;   // Temp. bufora, histereza
-  float minrb; // Min. rezerwa bufora, o ile tb musi być wyższa od tcwu aby nie
-               // kończyć grzać cwu.
-  float maxrb; // Max. rezerwa bufora, o ile tb musi być wyższa od tcwu, żeby
-               // zacząć grzać cwu
+  float tcwuh; // Histereza ciepłej wody użytkowej
+  float minrb; // Min. rezerwa bufora, o ile temp. bufora musi być wyższa od
+               // temp. ciepłej wody użytkowej aby nie kończyć grzać cwu.
+  float maxrb; // Max. rezerwa bufora, o ile temp. bufora musi być wyższa od
+               // temp. ciepłej wody użytkowej, żeby zacząć grzać cwu
+  float ztos;  // Zawór trójdrogowy, o ile otworzyć (w stopniach)
+  float ztzs;  // Zawór trójdrogowy, o ile zamknąć (w stopniach)
 };
 #endif
