@@ -113,7 +113,7 @@ void initTempSensor() {
   tempSensor->setTCWUAddress(TCWUAddress);
   tempSensor->setTPAddress(TPAddress);
 
-  const int MEASUREMENT_TIME = 800;
+  const int MEASUREMENT_TIME = 750;
   tempSensor->requestTemperatures();
   delay(MEASUREMENT_TIME);
   readTemperatures();
@@ -126,7 +126,7 @@ void initTimer() {
 }
 
 void requestAndReadTemperatures() {
-  const int MEASUREMENT_TIME = 800;
+  const int MEASUREMENT_TIME = 750;
   tempSensor->requestTemperatures();
   timer.setTimeout(readTemperatures, MEASUREMENT_TIME);
 }
