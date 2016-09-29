@@ -1,11 +1,7 @@
 #include "TempSensor.h"
 #include <Arduino.h>
 
-TempSensor::TempSensor(uint8_t tempSensorPin, LiquidCrystal *aLcd,
-                       uint8_t aBuzzerPin) {
-  lcd = aLcd;
-  buzzerPin = aBuzzerPin;
-
+TempSensor::TempSensor(uint8_t tempSensorPin) {
   dallasTemperature = new DallasTemperature();
   oneWire = new OneWire(tempSensorPin);
   dallasTemperature->setOneWire(oneWire);
@@ -136,72 +132,8 @@ void TempSensor::setTPAddress(const uint8_t aTPAddress[]) {
   copyAddress(aTPAddress, TPAddress);
 }
 
-void TempSensor::diagnose(void (*errorShutdown)()) {
-  float tz = readTZ();
-  float tkw = readTKW();
-  float tco = readTCO();
-  float tb = readTB();
-  float tcwu = readTCWU();
-  float tp = readTP();
-  float tskw = readTSKW();
-
-  bool isTZWorking = isTZInRange(tz);
-  bool isTKWWorking = isTKWInRange(tkw);
-  bool isTCOWorking = isTCOInRange(tco);
-  bool isTBWorking = isTBInRange(tb);
-  bool isTCWUWorking = isTCWUInRange(tcwu);
-  bool isTPWorking = isTPInRange(tp);
-  bool isTSKWWorking = isTSKWInRange(tskw);
-
-  bool working = isTZWorking && isTKWWorking && isTCOWorking && isTBWorking &&
-                 isTBWorking && isTCWUWorking && isTPWorking && isTSKWWorking;
-
-  if (working) {
-    digitalWrite(buzzerPin, HIGH);
-    delay(200);
-    digitalWrite(buzzerPin, LOW);
-  } else {
-    errorShutdown();
-
-    char text[84];
-    sprintf(text, "Tcwu: %c  Tz: %c\n"
-                  "Tkw : %c  Tb: %c\n"
-                  "Tco : %c  Tp: %c\n"
-                  "Tskw: %c",
-            (isTCWUWorking ? '+' : '-'), (isTZWorking ? '+' : '-'),
-            (isTKWWorking ? '+' : '-'), (isTBWorking ? '+' : '-'),
-            (isTCOWorking ? '+' : '-'), (isTPWorking ? '+' : '-'),
-            (isTSKWWorking ? '+' : '-'));
-    tempSensorError(text);
-  }
-}
-
-void TempSensor::tempSensorError(const char *msg) {
-  lcd->clear();
-  lcd->setCursor(0, 0);
-
-  const uint8_t len = strlen(msg);
-  uint8_t line = 0;
-  for (uint8_t i = 0; i < len; i++) {
-    if (msg[i] == '\n') {
-      line++;
-      lcd->setCursor(0, line);
-    } else {
-      lcd->print(msg[i]);
-    }
-  }
-
-  digitalWrite(buzzerPin, HIGH);
-  doNothing();
-}
-
 void TempSensor::copyAddress(const uint8_t src[], uint8_t dest[]) {
   const uint8_t ADDRESS_LEN = 8;
   for (uint8_t i = 0; i < ADDRESS_LEN; i++)
     dest[i] = src[i];
-}
-
-void TempSensor::doNothing() {
-  while (true)
-    delay(1000);
 }

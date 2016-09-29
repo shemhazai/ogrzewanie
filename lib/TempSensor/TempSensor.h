@@ -2,13 +2,12 @@
 #define TEMP_SENSOR_H
 
 #include <DallasTemperature.h>
-#include <LiquidCrystal.h>
 #include <Max6675.h>
 #include <OneWire.h>
 
 class TempSensor {
 public:
-  TempSensor(uint8_t tempSensorPin, LiquidCrystal *aLcd, uint8_t aBuzzerPin);
+  TempSensor(uint8_t tempSensorPin);
   ~TempSensor();
 
   void setMAX6675Pins(uint8_t sclk, uint8_t cs, uint8_t miso);
@@ -38,15 +37,8 @@ public:
   void setTCWUAddress(const uint8_t aTCWUAddress[]);
   void setTPAddress(const uint8_t aTPAddress[]);
 
-  void diagnose(void (*errorShutdown)());
-  void tempSensorError(const char *msg);
-
 private:
   void copyAddress(const uint8_t src[], uint8_t dest[]);
-  void doNothing();
-
-  LiquidCrystal *lcd;
-  uint8_t buzzerPin;
 
   DallasTemperature *dallasTemperature;
   OneWire *oneWire;
