@@ -59,6 +59,9 @@ float TempSensor::readTP() {
 }
 
 float TempSensor::readTSKW() {
+  if (thermocouple == NULL)
+    return -999.0;
+
   float temperature = thermocouple->readCelsius();
   return temperature;
 }
@@ -100,10 +103,7 @@ bool TempSensor::isTPInRange(const float temp) {
 }
 
 bool TempSensor::isTSKWInRange(const float temp) {
-  if (thermocouple == NULL)
-    return -999;
-
-  const float MAX_TEMP = 700;
+  const float MAX_TEMP = 600;
   const float MIN_TEMP = 0;
   return temp > MIN_TEMP && temp < MAX_TEMP;
 }
