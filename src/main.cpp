@@ -78,7 +78,7 @@ void initConfig() {
   conf.ztcwu = 66;
   conf.kg = 0.9;
   conf.tw = 20.5;
-  conf.zth = 1.5;
+  conf.zth = 1.1;
   conf.tcwuh = 1.0;
   conf.minrb = 2.0;
   conf.maxrb = 5.0;
@@ -113,7 +113,7 @@ void initTempSensor() {
   tempSensor->setTCWUAddress(TCWUAddress);
   tempSensor->setTPAddress(TPAddress);
 
-  const int MEASUREMENT_TIME = 900;
+  const int MEASUREMENT_TIME = 970;
   tempSensor->requestTemperatures();
   delay(MEASUREMENT_TIME);
   readTemperatures();
@@ -127,7 +127,7 @@ void initTimer() {
 }
 
 void requestAndReadTemperatures() {
-  const int MEASUREMENT_TIME = 900;
+  const int MEASUREMENT_TIME = 970;
   tempSensor->requestTemperatures();
   timer.setTimeout(readTemperatures, MEASUREMENT_TIME);
 }
@@ -183,14 +183,14 @@ void controlZT() {
     digitalWrite(ZTC_PIN, HIGH);
     digitalWrite(ZTZ_PIN, LOW);
 
-    const int openTime = (int)(conf.ztos * 3.111); // 280s / 90st.
+    const int openTime = (int)(conf.ztos * 3111); // 280s / 90st.
     timer.setTimeout(openZTCEnd, openTime);
     timer.setTimeout(controlZT, openTime + 20000);
   } else if (shouldCloseZT(conf)) {
     digitalWrite(ZTZ_PIN, HIGH);
     digitalWrite(ZTC_PIN, LOW);
 
-    const int closeTime = (int)(conf.ztzs * 3.111); // 280s / 90st.
+    const int closeTime = (int)(conf.ztzs * 3111); // 280s / 90st.
     timer.setTimeout(openZTZEnd, closeTime);
     timer.setTimeout(controlZT, closeTime + 7000);
   } else {
