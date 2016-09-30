@@ -113,20 +113,21 @@ void initTempSensor() {
   tempSensor->setTCWUAddress(TCWUAddress);
   tempSensor->setTPAddress(TPAddress);
 
-  const int MEASUREMENT_TIME = 750;
+  const int MEASUREMENT_TIME = 900;
   tempSensor->requestTemperatures();
   delay(MEASUREMENT_TIME);
   readTemperatures();
 }
 
 void initTimer() {
-  timer.setInterval(requestAndReadTemperatures, 1000); // min. 800ms
+  timer.setLastUpdate(millis());
+  timer.setInterval(requestAndReadTemperatures, 1000); // min. 900ms
   timer.setInterval(computeTKG, 600000);               // 10min.
   timer.setInterval(updateDisplay, 1000);
 }
 
 void requestAndReadTemperatures() {
-  const int MEASUREMENT_TIME = 750;
+  const int MEASUREMENT_TIME = 900;
   tempSensor->requestTemperatures();
   timer.setTimeout(readTemperatures, MEASUREMENT_TIME);
 }
