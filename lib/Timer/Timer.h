@@ -17,9 +17,6 @@ public:
   Timer();
   ~Timer();
 
-  unsigned long getLastUpdate() { return lastUpdate; }
-  void setLastUpdate(unsigned long aLastUpdate) { lastUpdate = aLastUpdate; }
-
   int8_t setTimeout(void (*function)(), unsigned long timeout);
   int8_t setInterval(void (*function)(), unsigned long interval);
   void enableTimer(uint8_t slot);

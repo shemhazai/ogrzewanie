@@ -1,14 +1,18 @@
-#include "condition.h"
-#include "config.h"
+#include "pins.h"
 #include <Arduino.h>
+#include <Config.h>
 #include <LiquidCrystal.h>
+#include <Memory.h>
 #include <TempSensor.h>
 #include <Timer.h>
+#include <WebServer.h>
 
-struct Config conf;
+Config conf;
+Memory memory;
 LiquidCrystal *lcd;
 TempSensor *tempSensor;
 Timer timer;
+WebServer *server;
 
 void setup();
 void loop();
@@ -18,6 +22,7 @@ void initPins();
 void initLcd();
 void initTempSensor();
 void initTimer();
+void initServer();
 
 void requestAndReadTemperatures();
 void readTemperatures();
@@ -41,6 +46,7 @@ void setup() {
   initLcd();
   initTempSensor();
   initTimer();
+  initServer();
 
   // beep
   digitalWrite(BUZZER_PIN, HIGH);
@@ -53,37 +59,44 @@ void setup() {
 }
 
 void loop() {
-  if (shouldTurnOnPKW(conf)) {
+  if (conf.shouldTurnOnPKW()) {
     digitalWrite(PKW_PIN, HIGH);
-  } else if (shouldTurnOffPKW(conf)) {
+  } else if (conf.shouldTurnOffPKW()) {
     digitalWrite(PKW_PIN, LOW);
   }
 
-  if (shouldTurnOnPCWU(conf)) {
+  if (conf.shouldTurnOnPCWU()) {
     digitalWrite(PCWU_PIN, HIGH);
-  } else if (shouldTurnOffPCWU(conf)) {
+  } else if (conf.shouldTurnOffPCWU()) {
     digitalWrite(PCWU_PIN, LOW);
   }
 
-  if (shouldTurnOnPCO(conf)) {
+  if (conf.shouldTurnOnPCO()) {
     digitalWrite(PCO_PIN, HIGH);
-  } else if (shouldTurnOffPCO(conf)) {
+  } else if (conf.shouldTurnOffPCO()) {
     digitalWrite(PCO_PIN, LOW);
   }
 
+  server->handleClient();
   timer.update();
 }
 
 void initConfig() {
-  conf.ztcwu = 66;
+  conf.ztcwu = 60;
   conf.kg = 0.9;
-  conf.tw = 20.5;
+  conf.tw = 21;
   conf.zth = 1.1;
   conf.tcwuh = 1.0;
   conf.minrb = 2.0;
   conf.maxrb = 5.0;
   conf.ztos = 1.0;
   conf.ztzs = 1.6;
+
+  if (memory.isConfigSaved()) {
+    memory.readConfig(conf);
+  } else {
+    memory.saveConfig(conf);
+  }
 }
 
 void initPins() {
@@ -113,21 +126,23 @@ void initTempSensor() {
   tempSensor->setTCWUAddress(TCWUAddress);
   tempSensor->setTPAddress(TPAddress);
 
-  const int MEASUREMENT_TIME = 970;
+  const int MEASUREMENT_TIME = 1800;
   tempSensor->requestTemperatures();
   delay(MEASUREMENT_TIME);
   readTemperatures();
 }
 
 void initTimer() {
-  timer.setLastUpdate(millis());
-  timer.setInterval(requestAndReadTemperatures, 1000); // min. 900ms
+  timer.update();                                      // set lastUpdate
+  timer.setInterval(requestAndReadTemperatures, 2000); // min. 1800ms
   timer.setInterval(computeTKG, 600000);               // 10min.
   timer.setInterval(updateDisplay, 1000);
 }
 
+void initServer() { server = new WebServer(&conf, &memory); }
+
 void requestAndReadTemperatures() {
-  const int MEASUREMENT_TIME = 970;
+  const int MEASUREMENT_TIME = 1800;
   tempSensor->requestTemperatures();
   timer.setTimeout(readTemperatures, MEASUREMENT_TIME);
 }
@@ -179,14 +194,14 @@ void openZTCEnd() { digitalWrite(ZTC_PIN, LOW); }
 void openZTZEnd() { digitalWrite(ZTZ_PIN, LOW); }
 
 void controlZT() {
-  if (shouldOpenZT(conf)) {
+  if (conf.shouldOpenZT()) {
     digitalWrite(ZTC_PIN, HIGH);
     digitalWrite(ZTZ_PIN, LOW);
 
     const int openTime = (int)(conf.ztos * 3111); // 280s / 90st.
     timer.setTimeout(openZTCEnd, openTime);
     timer.setTimeout(controlZT, openTime + 20000);
-  } else if (shouldCloseZT(conf)) {
+  } else if (conf.shouldCloseZT()) {
     digitalWrite(ZTZ_PIN, HIGH);
     digitalWrite(ZTC_PIN, LOW);
 

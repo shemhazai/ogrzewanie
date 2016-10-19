@@ -27,7 +27,7 @@ int8_t Timer::setTimeout(void (*function)(), unsigned long timeout) {
 }
 
 int8_t Timer::setInterval(void (*function)(), unsigned long interval) {
-  if (interval == 0)
+  if (interval <= 0)
     return -1;
 
   int8_t slot = findTimerSlot();
