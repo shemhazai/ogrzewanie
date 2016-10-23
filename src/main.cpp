@@ -7,12 +7,12 @@
 #include <Timer.h>
 #include <WebServer.h>
 
-Config conf;
 Memory memory;
+Config *conf;
+WebServer *server;
 LiquidCrystal *lcd;
 TempSensor *tempSensor;
 Timer timer;
-WebServer *server;
 
 void setup();
 void loop();
@@ -59,21 +59,21 @@ void setup() {
 }
 
 void loop() {
-  if (conf.shouldTurnOnPKW()) {
+  if (conf->shouldTurnOnPKW()) {
     digitalWrite(PKW_PIN, HIGH);
-  } else if (conf.shouldTurnOffPKW()) {
+  } else if (conf->shouldTurnOffPKW()) {
     digitalWrite(PKW_PIN, LOW);
   }
 
-  if (conf.shouldTurnOnPCWU()) {
+  if (conf->shouldTurnOnPCWU()) {
     digitalWrite(PCWU_PIN, HIGH);
-  } else if (conf.shouldTurnOffPCWU()) {
+  } else if (conf->shouldTurnOffPCWU()) {
     digitalWrite(PCWU_PIN, LOW);
   }
 
-  if (conf.shouldTurnOnPCO()) {
+  if (conf->shouldTurnOnPCO()) {
     digitalWrite(PCO_PIN, HIGH);
-  } else if (conf.shouldTurnOffPCO()) {
+  } else if (conf->shouldTurnOffPCO()) {
     digitalWrite(PCO_PIN, LOW);
   }
 
@@ -81,23 +81,7 @@ void loop() {
   timer.update();
 }
 
-void initConfig() {
-  conf.ztcwu = 60;
-  conf.kg = 0.9;
-  conf.tw = 21;
-  conf.zth = 1.1;
-  conf.tcwuh = 1.0;
-  conf.minrb = 2.0;
-  conf.maxrb = 5.0;
-  conf.ztos = 1.0;
-  conf.ztzs = 1.6;
-
-  if (memory.isConfigSaved()) {
-    memory.readConfig(conf);
-  } else {
-    memory.saveConfig(conf);
-  }
-}
+void initConfig() { conf = new Config(&memory); }
 
 void initPins() {
   pinMode(BUZZER_PIN, OUTPUT);
@@ -139,7 +123,7 @@ void initTimer() {
   timer.setInterval(updateDisplay, 1000);
 }
 
-void initServer() { server = new WebServer(&conf, &memory); }
+void initServer() { server = new WebServer(conf); }
 
 void requestAndReadTemperatures() {
   const int MEASUREMENT_TIME = 1800;
@@ -148,21 +132,21 @@ void requestAndReadTemperatures() {
 }
 
 void readTemperatures() {
-  conf.tz = tempSensor->readTZ();
-  conf.tkw = tempSensor->readTKW();
-  conf.tco = tempSensor->readTCO();
-  conf.tb = tempSensor->readTB();
-  conf.tcwu = tempSensor->readTCWU();
-  conf.tp = tempSensor->readTP();
-  conf.tskw = tempSensor->readTSKW();
+  conf->tz = tempSensor->readTZ();
+  conf->tkw = tempSensor->readTKW();
+  conf->tco = tempSensor->readTCO();
+  conf->tb = tempSensor->readTB();
+  conf->tcwu = tempSensor->readTCWU();
+  conf->tp = tempSensor->readTP();
+  conf->tskw = tempSensor->readTSKW();
 
-  bool isTZWorking = tempSensor->isTZInRange(conf.tz);
-  bool isTKWWorking = tempSensor->isTKWInRange(conf.tkw);
-  bool isTCOWorking = tempSensor->isTCOInRange(conf.tco);
-  bool isTBWorking = tempSensor->isTBInRange(conf.tb);
-  bool isTCWUWorking = tempSensor->isTCWUInRange(conf.tcwu);
-  bool isTPWorking = tempSensor->isTPInRange(conf.tp);
-  bool isTSKWWorking = tempSensor->isTSKWInRange(conf.tskw);
+  bool isTZWorking = tempSensor->isTZInRange(conf->tz);
+  bool isTKWWorking = tempSensor->isTKWInRange(conf->tkw);
+  bool isTCOWorking = tempSensor->isTCOInRange(conf->tco);
+  bool isTBWorking = tempSensor->isTBInRange(conf->tb);
+  bool isTCWUWorking = tempSensor->isTCWUInRange(conf->tcwu);
+  bool isTPWorking = tempSensor->isTPInRange(conf->tp);
+  bool isTSKWWorking = tempSensor->isTSKWInRange(conf->tskw);
 
   bool working = isTZWorking && isTKWWorking && isTCOWorking && isTBWorking &&
                  isTCWUWorking && isTPWorking && isTSKWWorking;
@@ -187,25 +171,25 @@ void readTemperatures() {
 
 void computeTKG() {
   // kg - krzywa grzewcza, tw - temperatura wewnątrz
-  conf.tkg = conf.kg * (conf.tw - conf.tz) + conf.tw;
+  conf->tkg = conf->kg * (conf->tw - conf->tz) + conf->tw;
 }
 
 void openZTCEnd() { digitalWrite(ZTC_PIN, LOW); }
 void openZTZEnd() { digitalWrite(ZTZ_PIN, LOW); }
 
 void controlZT() {
-  if (conf.shouldOpenZT()) {
+  if (conf->shouldOpenZT()) {
     digitalWrite(ZTC_PIN, HIGH);
     digitalWrite(ZTZ_PIN, LOW);
 
-    const int openTime = (int)(conf.ztos * 3111); // 280s / 90st.
+    const int openTime = (int)(conf->ztos * 3111); // 280s / 90st.
     timer.setTimeout(openZTCEnd, openTime);
     timer.setTimeout(controlZT, openTime + 20000);
-  } else if (conf.shouldCloseZT()) {
+  } else if (conf->shouldCloseZT()) {
     digitalWrite(ZTZ_PIN, HIGH);
     digitalWrite(ZTC_PIN, LOW);
 
-    const int closeTime = (int)(conf.ztzs * 3111); // 280s / 90st.
+    const int closeTime = (int)(conf->ztzs * 3111); // 280s / 90st.
     timer.setTimeout(openZTZEnd, closeTime);
     timer.setTimeout(controlZT, closeTime + 7000);
   } else {
@@ -229,12 +213,12 @@ void updateDisplay() {
                 "Tcwu %2d.%1d Tco %2d.%1d\n"
                 "Tb   %2d.%1d Tz %c%2d.%1d\n"
                 "Tkg  %2d.%1d Tp  %2d.%1d",
-          total(conf.tskw), total(conf.tkw), fraction(conf.tkw),
-          total(conf.tcwu), fraction(conf.tcwu), total(conf.tco),
-          fraction(conf.tco), total(conf.tb), fraction(conf.tb),
-          ((conf.tz < 0) ? '-' : ' '), total(conf.tz), fraction(conf.tz),
-          total(conf.tkg), fraction(conf.tkg), total(conf.tp),
-          fraction(conf.tp));
+          total(conf->tskw), total(conf->tkw), fraction(conf->tkw),
+          total(conf->tcwu), fraction(conf->tcwu), total(conf->tco),
+          fraction(conf->tco), total(conf->tb), fraction(conf->tb),
+          ((conf->tz < 0) ? '-' : ' '), total(conf->tz), fraction(conf->tz),
+          total(conf->tkg), fraction(conf->tkg), total(conf->tp),
+          fraction(conf->tp));
 
   printText(text);
 }

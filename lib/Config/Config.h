@@ -1,12 +1,28 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include <Memory.h>
+
 class Config {
 public:
+  Config(Memory *aMemory);
+
+  bool shouldTurnOnPKW();
+  bool shouldTurnOffPKW();
+  bool shouldTurnOnPCWU();
+  bool shouldTurnOffPCWU();
+  bool shouldTurnOnPCO();
+  bool shouldTurnOffPCO();
+  bool shouldOpenZT();
+  bool shouldCloseZT();
+
+  void setProperty(String name, float value);
+
   float tz;    // Temp. zewnętrzna
   float tkw;   // Temp. kotła węglowego
   float tskw;  // Temp. spalin kotła węglowego
   float tco;   // Temp. centralnego ogrzewania
+  float ztb;   // Zadana temp. bufora
   float tb;    // Temp. bufora
   float tcwu;  // Temp. ciepłej wody użytkowej
   float tkg;   // Temp. krzywa grzewcza
@@ -23,14 +39,11 @@ public:
   float ztos;  // Zawór trójdrogowy, o ile otworzyć (w stopniach)
   float ztzs;  // Zawór trójdrogowy, o ile zamknąć (w stopniach)
 
-  bool shouldTurnOnPKW();
-  bool shouldTurnOffPKW();
-  bool shouldTurnOnPCWU();
-  bool shouldTurnOffPCWU();
-  bool shouldTurnOnPCO();
-  bool shouldTurnOffPCO();
-  bool shouldOpenZT();
-  bool shouldCloseZT();
+private:
+  void saveConfig();
+  void readConfig();
+
+  Memory *memory;
 };
 
 #endif

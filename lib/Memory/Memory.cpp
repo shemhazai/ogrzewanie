@@ -12,31 +12,6 @@ void Memory::setConfigSaved(bool saved) {
   }
 }
 
-void Memory::saveConfig(Config &conf) {
-  writeZTCWU(conf.ztcwu);
-  writeKG(conf.kg);
-  writeTW(conf.tw);
-  writeZTH(conf.zth);
-  writeTCWUH(conf.tcwuh);
-  writeMINRB(conf.minrb);
-  writeMAXRB(conf.maxrb);
-  writeZTOS(conf.ztos);
-  writeZTZS(conf.ztzs);
-  setConfigSaved(true);
-}
-
-void Memory::readConfig(Config &conf) {
-  conf.ztcwu = readZTCWU();
-  conf.kg = readKG();
-  conf.tw = readTW();
-  conf.zth = readZTH();
-  conf.tcwuh = readTCWUH();
-  conf.minrb = readMINRB();
-  conf.maxrb = readMAXRB();
-  conf.ztos = readZTOS();
-  conf.ztzs = readZTZS();
-}
-
 float Memory::readZTCWU() { return readFloat(ZTCWU_ADDRESS); }
 
 float Memory::readKG() { return readFloat(KG_ADDRESS); }
@@ -55,6 +30,8 @@ float Memory::readZTOS() { return readFloat(ZTOS_ADDRESS); }
 
 float Memory::readZTZS() { return readFloat(ZTZS_ADDRESS); }
 
+float Memory::readZTB() { return readFloat(ZTB_ADDRESS); }
+
 void Memory::writeZTCWU(const float ztcwu) { writeFloat(ZTCWU_ADDRESS, ztcwu); }
 
 void Memory::writeKG(const float kg) { writeFloat(KG_ADDRESS, kg); }
@@ -72,6 +49,8 @@ void Memory::writeMAXRB(const float maxrb) { writeFloat(MAXRB_ADDRESS, maxrb); }
 void Memory::writeZTOS(const float ztos) { writeFloat(ZTOS_ADDRESS, ztos); }
 
 void Memory::writeZTZS(const float ztzs) { writeFloat(ZTZS_ADDRESS, ztzs); }
+
+void Memory::writeZTB(const float ztb) { writeFloat(ZTB_ADDRESS, ztb); }
 
 void Memory::writeFloat(int address, const float val) {
   const uint8_t *p = (const uint8_t *)(const void *)&val;

@@ -1,14 +1,19 @@
 #include "WebServer.h"
 
-WebServer::WebServer(Config *aConf, Memory *aMemory) {
+WebServer::WebServer(Config *aConf) {
   conf = aConf;
-  memory = aMemory;
+  initEthernet();
+  initServer();
+}
 
-  byte mac[] = {0xDE, 0xAD, 0xBE, 0xC0, 0xA2, 0x74};
+void WebServer::initEthernet() {
+  byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
   IPAddress ip(192, 168, 2, 241);
   Ethernet.begin(mac, ip);
+}
 
-  const int PORT = 80;
+void WebServer::initServer() {
+  const int PORT = 23;
   server = new EthernetServer(PORT);
   server->begin();
 }
@@ -17,70 +22,93 @@ void WebServer::handleClient() {
   EthernetClient client = server->available();
   if (client) {
     String data = "";
+    data.reserve(client.available());
+
     while (client.available()) {
-      data += String(client.read());
+      char ch = client.read();
+      data += String(ch);
     }
+
+    data.toLowerCase();
+    data.trim();
+
     handleRequest(client, data);
   }
 }
 
 void WebServer::handleRequest(EthernetClient &client, String data) {
-  if (data.startsWith("set ")) {
-    data = data.substring(4);
-    while (data.indexOf("=") >= 0) {
-      int a = data.indexOf('=');
-      int b = data.indexOf(';');
+  if (data.equals("get")) {
+    handleGet(client, data);
+  } else if (data.startsWith("set ")) {
+    data.remove(0, 4); // skip "set "
+    handleSet(client, data);
+  } else if (data.equals("test")) {
+    client.write("test_ok");
+    client.flush();
+  }
 
-      String name = data.substring(0, a);
-      String strValue = data.substring(a + 1, b);
-      float value = data.toFloat();
+  delay(1);
+  client.stop();
+}
 
-      findAndSetProperty(name, value);
-    }
-  } else if (data.equals("get")) {
-    String response =
-        String("{") + "  \"tz\":" + String(conf->tz) + ", \"tkw\":" +
-        String(conf->tkw) + ", \"tskw\":" + String(conf->tskw) + ", \"tco\":" +
-        String(conf->tco) + ", \"tb\":" + String(conf->tb) + ", \"tcwu\":" +
-        String(conf->tcwu) + ", \"tkg\":" + String(conf->tkg) + ", \"tp\":" +
-        String(conf->tp) + ", \"ztcwu\":" + String(conf->ztcwu) + ", \"kg\":" +
-        String(conf->kg) + ", \"tw\":" + String(conf->tw) + ", \"zth\":" +
-        String(conf->zth) + ", \"tcwuh\":" + String(conf->tcwuh) +
-        ", \"minrb\":" + String(conf->minrb) + ", \"maxrb\":" +
-        String(conf->maxrb) + ", \"ztos\":" + String(conf->ztos) +
-        ", \"ztzs\":" + String(conf->ztzs) + "}";
+void WebServer::handleGet(EthernetClient &client, String data) {
+  String response = "";
+  response.reserve(200);
+
+  response += "{";
+  appendFirst(response, "tz", conf->tz);
+  append(response, "tkw", conf->tkw);
+  append(response, "tskw", conf->tskw);
+  append(response, "tco", conf->tco);
+  append(response, "tb", conf->tb);
+  append(response, "ztb", conf->ztb);
+  append(response, "tcwu", conf->tcwu);
+  append(response, "tkg", conf->tkg);
+  append(response, "tp", conf->tp);
+  append(response, "ztcwu", conf->ztcwu);
+  append(response, "kg", conf->kg);
+  append(response, "tw", conf->tw);
+  append(response, "zth", conf->zth);
+  append(response, "tcwuh", conf->tcwuh);
+  append(response, "minrb", conf->minrb);
+  append(response, "maxrb", conf->maxrb);
+  append(response, "ztos", conf->ztos);
+  append(response, "ztzs", conf->ztzs);
+  response += "}";
+
+  if (client) {
     client.println(response);
     client.flush();
   }
 }
 
-void WebServer::findAndSetProperty(String name, float value) {
-  if (name.equals("ztcwu")) {
-    memory->writeZTCWU(value);
-    conf->ztcwu = value;
-  } else if (name.equals("kg")) {
-    memory->writeKG(value);
-    conf->kg = value;
-  } else if (name.equals("tw")) {
-    memory->writeTW(value);
-    conf->tw = value;
-  } else if (name.equals("zth")) {
-    memory->writeZTH(value);
-    conf->zth = value;
-  } else if (name.equals("tcwuh")) {
-    memory->writeTCWUH(value);
-    conf->tcwuh = value;
-  } else if (name.equals("minrb")) {
-    memory->writeMINRB(value);
-    conf->minrb = value;
-  } else if (name.equals("maxrb")) {
-    memory->writeMAXRB(value);
-    conf->maxrb = value;
-  } else if (name.equals("ztos")) {
-    memory->writeZTOS(value);
-    conf->ztos = value;
-  } else if (name.equals("ztzs")) {
-    memory->writeZTZS(value);
-    conf->ztzs = value;
+void WebServer::handleSet(EthernetClient &client, String data) {
+  while (data.indexOf('=') != -1) {
+    int equalSign = data.indexOf('=');
+    int delimeter = data.indexOf(';');
+
+    if (equalSign == -1 || delimeter == -1) {
+      return;
+    }
+
+    String name = data.substring(0, equalSign);
+    String str = data.substring(equalSign + 1, delimeter);
+    float value = str.toFloat();
+
+    if (value == 0.00 && !str.startsWith("0.00")) {
+      return;
+    }
+
+    conf->setProperty(name, value);
+    data.remove(0, delimeter);
+    data.trim();
   }
+}
+
+void WebServer::appendFirst(String &response, String name, float value) {
+  response += "\"" + name + "\": " + String(value);
+}
+
+void WebServer::append(String &response, String name, float value) {
+  response += ", \"" + name + "\": " + String(value);
 }

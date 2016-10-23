@@ -1,17 +1,12 @@
-#ifndef MEMORY_H_
-#define MEMORY_H_
+#ifndef MEMORY_H
+#define MEMORY_H
 
 #include <Arduino.h>
-#include <Config.h>
 #include <EEPROM.h>
 
 class Memory {
 public:
   bool isConfigSaved();
-  void setConfigSaved(bool saved);
-
-  void saveConfig(Config &conf);
-  void readConfig(Config &conf);
 
   float readZTCWU();
   float readKG();
@@ -22,6 +17,9 @@ public:
   float readMAXRB();
   float readZTOS();
   float readZTZS();
+  float readZTB();
+
+  void setConfigSaved(bool saved);
 
   void writeZTCWU(const float ztcwu);
   void writeKG(const float kg);
@@ -32,6 +30,7 @@ public:
   void writeMAXRB(const float maxrb);
   void writeZTOS(const float ztos);
   void writeZTZS(const float ztzs);
+  void writeZTB(const float ztb);
 
 private:
   void writeFloat(int address, const float val);
@@ -53,6 +52,7 @@ private:
   const static int MAXRB_ADDRESS = 26;
   const static int ZTOS_ADDRESS = 30;
   const static int ZTZS_ADDRESS = 34;
+  const static int ZTB_ADDRESS = 38;
 };
 
 #endif
