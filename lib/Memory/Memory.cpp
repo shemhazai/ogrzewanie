@@ -16,7 +16,7 @@ float Memory::readZTCWU() { return readFloat(ZTCWU_ADDRESS); }
 
 float Memory::readKG() { return readFloat(KG_ADDRESS); }
 
-float Memory::readTW() { return readFloat(TW_ADDRESS); }
+float Memory::readPTW() { return readFloat(PTW_ADDRESS); }
 
 float Memory::readZTH() { return readFloat(ZTH_ADDRESS); }
 
@@ -32,11 +32,13 @@ float Memory::readZTZS() { return readFloat(ZTZS_ADDRESS); }
 
 float Memory::readZTB() { return readFloat(ZTB_ADDRESS); }
 
+int Memory::readIPA() { return readInt(IPA_ADDRESS); }
+
 void Memory::writeZTCWU(const float ztcwu) { writeFloat(ZTCWU_ADDRESS, ztcwu); }
 
 void Memory::writeKG(const float kg) { writeFloat(KG_ADDRESS, kg); }
 
-void Memory::writeTW(const float tw) { writeFloat(TW_ADDRESS, tw); }
+void Memory::writePTW(const float ptw) { writeFloat(PTW_ADDRESS, ptw); }
 
 void Memory::writeZTH(const float zth) { writeFloat(ZTH_ADDRESS, zth); }
 
@@ -51,6 +53,8 @@ void Memory::writeZTOS(const float ztos) { writeFloat(ZTOS_ADDRESS, ztos); }
 void Memory::writeZTZS(const float ztzs) { writeFloat(ZTZS_ADDRESS, ztzs); }
 
 void Memory::writeZTB(const float ztb) { writeFloat(ZTB_ADDRESS, ztb); }
+
+void Memory::writeIPA(const int ipa) { writeInt(IPA_ADDRESS, ipa); }
 
 void Memory::writeFloat(int address, const float val) {
   const uint8_t *p = (const uint8_t *)(const void *)&val;

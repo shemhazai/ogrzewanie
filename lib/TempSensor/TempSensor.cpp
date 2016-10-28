@@ -66,6 +66,11 @@ float TempSensor::readTSKW() {
   return temperature;
 }
 
+float TempSensor::readTW() {
+  float temperature = dallasTemperature->getTempC(TWAddress);
+  return temperature;
+}
+
 bool TempSensor::isTZInRange(const float temp) {
   const float MAX_TEMP = 50;
   const float MIN_TEMP = -40;
@@ -108,6 +113,12 @@ bool TempSensor::isTSKWInRange(const float temp) {
   return temp > MIN_TEMP && temp < MAX_TEMP;
 }
 
+bool TempSensor::isTWInRange(const float temp) {
+  const float MAX_TEMP = 40;
+  const float MIN_TEMP = 0;
+  return temp > MIN_TEMP && temp < MAX_TEMP;
+}
+
 void TempSensor::setTZAddress(const uint8_t aTZAddress[]) {
   copyAddress(aTZAddress, TZAddress);
 }
@@ -130,6 +141,10 @@ void TempSensor::setTCWUAddress(const uint8_t aTCWUAddress[]) {
 
 void TempSensor::setTPAddress(const uint8_t aTPAddress[]) {
   copyAddress(aTPAddress, TPAddress);
+}
+
+void TempSensor::setTWAddress(const uint8_t aTWAddress[]) {
+  copyAddress(aTWAddress, TWAddress);
 }
 
 void TempSensor::copyAddress(const uint8_t src[], uint8_t dest[]) {

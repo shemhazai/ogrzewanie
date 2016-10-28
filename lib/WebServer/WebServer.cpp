@@ -42,9 +42,6 @@ void WebServer::handleRequest(EthernetClient &client, String data) {
   } else if (data.startsWith("set ")) {
     data.remove(0, 4); // skip "set "
     handleSet(client, data);
-  } else if (data.equals("test")) {
-    client.write("test_ok");
-    client.flush();
   }
 
   delay(1);
@@ -57,6 +54,7 @@ void WebServer::handleGet(EthernetClient &client, String data) {
 
   response += "{";
   appendFirst(response, "tz", conf->tz);
+  append(response, "tw", conf->tw);
   append(response, "tkw", conf->tkw);
   append(response, "tskw", conf->tskw);
   append(response, "tco", conf->tco);
@@ -67,13 +65,14 @@ void WebServer::handleGet(EthernetClient &client, String data) {
   append(response, "tp", conf->tp);
   append(response, "ztcwu", conf->ztcwu);
   append(response, "kg", conf->kg);
-  append(response, "tw", conf->tw);
+  append(response, "ptw", conf->ptw);
   append(response, "zth", conf->zth);
   append(response, "tcwuh", conf->tcwuh);
   append(response, "minrb", conf->minrb);
   append(response, "maxrb", conf->maxrb);
   append(response, "ztos", conf->ztos);
   append(response, "ztzs", conf->ztzs);
+  append(response, "ipa", conf->ipa);
   response += "}";
 
   if (client) {
@@ -106,9 +105,9 @@ void WebServer::handleSet(EthernetClient &client, String data) {
 }
 
 void WebServer::appendFirst(String &response, String name, float value) {
-  response += "\"" + name + "\": " + String(value);
+  response += "\"" + name + "\":" + String(value);
 }
 
 void WebServer::append(String &response, String name, float value) {
-  response += ", \"" + name + "\": " + String(value);
+  response += ",\"" + name + "\":" + String(value);
 }

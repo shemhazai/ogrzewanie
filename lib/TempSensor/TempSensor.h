@@ -21,6 +21,7 @@ public:
   float readTCWU();
   float readTP();
   float readTSKW();
+  float readTW();
 
   bool isTZInRange(const float temp);
   bool isTKWInRange(const float temp);
@@ -29,6 +30,7 @@ public:
   bool isTCWUInRange(const float temp);
   bool isTPInRange(const float temp);
   bool isTSKWInRange(const float temp);
+  bool isTWInRange(const float temp);
 
   void setTZAddress(const uint8_t aTZAddress[]);
   void setTKWAddress(const uint8_t aTKWAddress[]);
@@ -36,6 +38,7 @@ public:
   void setTBAddress(const uint8_t aTBAddress[]);
   void setTCWUAddress(const uint8_t aTCWUAddress[]);
   void setTPAddress(const uint8_t aTPAddress[]);
+  void setTWAddress(const uint8_t aTWAddress[]);
 
 private:
   void copyAddress(const uint8_t src[], uint8_t dest[]);
@@ -51,6 +54,7 @@ private:
   uint8_t TBAddress[8];
   uint8_t TCWUAddress[8];
   uint8_t TPAddress[8];
+  uint8_t TWAddress[8];
 };
 
 #endif

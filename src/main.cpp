@@ -7,12 +7,18 @@
 #include <Timer.h>
 #include <WebServer.h>
 
+#include <EEPROM.h>
+#include <Ethernet.h>
+#include <SPI.h>
+
 Memory memory;
 Config *conf;
 WebServer *server;
 LiquidCrystal *lcd;
 TempSensor *tempSensor;
 Timer timer;
+
+int tempReadErrorCount = 0;
 
 void setup();
 void loop();
@@ -90,6 +96,7 @@ void initPins() {
   pinMode(PCO_PIN, OUTPUT);
   pinMode(ZTZ_PIN, OUTPUT);
   pinMode(ZTC_PIN, OUTPUT);
+  pinMode(ETHERNET_SHIELD_SPI_SWITCH, OUTPUT);
 }
 
 void initLcd() {
@@ -109,6 +116,7 @@ void initTempSensor() {
   tempSensor->setTBAddress(TBAddress);
   tempSensor->setTCWUAddress(TCWUAddress);
   tempSensor->setTPAddress(TPAddress);
+  tempSensor->setTWAddress(TWAddress);
 
   const int MEASUREMENT_TIME = 1800;
   tempSensor->requestTemperatures();
@@ -132,46 +140,63 @@ void requestAndReadTemperatures() {
 }
 
 void readTemperatures() {
-  conf->tz = tempSensor->readTZ();
-  conf->tkw = tempSensor->readTKW();
-  conf->tco = tempSensor->readTCO();
-  conf->tb = tempSensor->readTB();
-  conf->tcwu = tempSensor->readTCWU();
-  conf->tp = tempSensor->readTP();
-  conf->tskw = tempSensor->readTSKW();
+  float tz = tempSensor->readTZ();
+  float tkw = tempSensor->readTKW();
+  float tco = tempSensor->readTCO();
+  float tb = tempSensor->readTB();
+  float tcwu = tempSensor->readTCWU();
+  float tp = tempSensor->readTP();
+  float tskw = tempSensor->readTSKW();
+  float tw = tempSensor->readTW();
 
-  bool isTZWorking = tempSensor->isTZInRange(conf->tz);
-  bool isTKWWorking = tempSensor->isTKWInRange(conf->tkw);
-  bool isTCOWorking = tempSensor->isTCOInRange(conf->tco);
-  bool isTBWorking = tempSensor->isTBInRange(conf->tb);
-  bool isTCWUWorking = tempSensor->isTCWUInRange(conf->tcwu);
-  bool isTPWorking = tempSensor->isTPInRange(conf->tp);
-  bool isTSKWWorking = tempSensor->isTSKWInRange(conf->tskw);
+  bool isTZWorking = tempSensor->isTZInRange(tz);
+  bool isTKWWorking = tempSensor->isTKWInRange(tkw);
+  bool isTCOWorking = tempSensor->isTCOInRange(tco);
+  bool isTBWorking = tempSensor->isTBInRange(tb);
+  bool isTCWUWorking = tempSensor->isTCWUInRange(tcwu);
+  bool isTPWorking = tempSensor->isTPInRange(tp);
+  bool isTSKWWorking = tempSensor->isTSKWInRange(tskw);
+  bool isTWWorking = tempSensor->isTWInRange(tw);
 
   bool working = isTZWorking && isTKWWorking && isTCOWorking && isTBWorking &&
-                 isTCWUWorking && isTPWorking && isTSKWWorking;
+                 isTCWUWorking && isTPWorking && isTSKWWorking && isTWWorking;
 
   if (!working) {
-    stopOnError();
+    tempReadErrorCount++;
 
-    char text[84];
-    sprintf(text, "Tcwu: %c  Tz: %c\n"
-                  "Tkw : %c  Tb: %c\n"
-                  "Tco : %c  Tp: %c\n"
-                  "Tskw: %c",
-            (isTCWUWorking ? '+' : '-'), (isTZWorking ? '+' : '-'),
-            (isTKWWorking ? '+' : '-'), (isTBWorking ? '+' : '-'),
-            (isTCOWorking ? '+' : '-'), (isTPWorking ? '+' : '-'),
-            (isTSKWWorking ? '+' : '-'));
-    printText(text);
-    while (true)
-      delay(1000);
+    if (tempReadErrorCount == conf->ipa) {
+      stopOnError();
+
+      char text[84];
+      sprintf(text, "Tcwu: %c  Tz: %c\n"
+                    "Tkw : %c  Tb: %c\n"
+                    "Tco : %c  Tp: %c\n"
+                    "Tskw: %c  Tw: %c",
+              (isTCWUWorking ? '+' : '-'), (isTZWorking ? '+' : '-'),
+              (isTKWWorking ? '+' : '-'), (isTBWorking ? '+' : '-'),
+              (isTCOWorking ? '+' : '-'), (isTPWorking ? '+' : '-'),
+              (isTSKWWorking ? '+' : '-'), (isTWWorking ? '+' : '-'));
+      printText(text);
+      while (true)
+        delay(1000);
+    }
+  } else {
+    tempReadErrorCount = 0;
   }
+
+  conf->tz = isTZWorking ? tz : conf->tz;
+  conf->tkw = isTKWWorking ? tkw : conf->tkw;
+  conf->tco = isTCOWorking ? tco : conf->tco;
+  conf->tb = isTBWorking ? tb : conf->tb;
+  conf->tcwu = isTCWUWorking ? tcwu : conf->tcwu;
+  conf->tskw = isTSKWWorking ? tskw : conf->tskw;
+  conf->tp = isTPWorking ? tp : conf->tp;
+  conf->tw = isTWWorking ? tw : conf->tw;
 }
 
 void computeTKG() {
   // kg - krzywa grzewcza, tw - temperatura wewnątrz
-  conf->tkg = conf->kg * (conf->tw - conf->tz) + conf->tw;
+  conf->tkg = conf->kg * (conf->ptw - conf->tz) + conf->ptw;
 }
 
 void openZTCEnd() { digitalWrite(ZTC_PIN, LOW); }

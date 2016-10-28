@@ -19,6 +19,7 @@ public:
   void setProperty(String name, float value);
 
   float tz;    // Temp. zewnętrzna
+  float tw;    // Temp. wewnętrzna
   float tkw;   // Temp. kotła węglowego
   float tskw;  // Temp. spalin kotła węglowego
   float tco;   // Temp. centralnego ogrzewania
@@ -29,7 +30,7 @@ public:
   float tp;    // Temp. powrotu
   float ztcwu; // Zadana temp. ciepłej wody użytkowej
   float kg;    // Krzywa grzewcza
-  float tw;    // Pożadana temp. wewnątrz
+  float ptw;   // Pożadana temp. wewnątrz
   float zth;   // Zawór trójdrogowy, histereza
   float tcwuh; // Histereza ciepłej wody użytkowej
   float minrb; // Min. rezerwa bufora, o ile temp. bufora musi być wyższa od
@@ -38,6 +39,7 @@ public:
                // temp. ciepłej wody użytkowej, żeby zacząć grzać cwu
   float ztos;  // Zawór trójdrogowy, o ile otworzyć (w stopniach)
   float ztzs;  // Zawór trójdrogowy, o ile zamknąć (w stopniach)
+  int ipa;     // Ilość prób odczytu temperatury do awarii
 
 private:
   void saveConfig();

@@ -3,9 +3,10 @@
 Config::Config(Memory *aMemory) {
   memory = aMemory;
 
+  tz = tw = tkw = tskw = tco = tb = tcwu = tkg = tp = 0;
   ztcwu = 60;
   kg = 0.9;
-  tw = 21;
+  ptw = 21;
   zth = 1.1;
   tcwuh = 1.0;
   minrb = 2.0;
@@ -13,6 +14,7 @@ Config::Config(Memory *aMemory) {
   ztos = 1.0;
   ztzs = 1.6;
   ztb = 80;
+  ipa = 1;
 
   if (memory->isConfigSaved()) {
     readConfig();
@@ -24,7 +26,7 @@ Config::Config(Memory *aMemory) {
 void Config::readConfig() {
   ztcwu = memory->readZTCWU();
   kg = memory->readKG();
-  tw = memory->readTW();
+  ptw = memory->readPTW();
   zth = memory->readZTH();
   tcwuh = memory->readTCWUH();
   minrb = memory->readMINRB();
@@ -32,12 +34,13 @@ void Config::readConfig() {
   ztos = memory->readZTOS();
   ztzs = memory->readZTZS();
   tb = memory->readZTB();
+  ipa = memory->readIPA();
 }
 
 void Config::saveConfig() {
   memory->writeZTCWU(ztcwu);
   memory->writeKG(kg);
-  memory->writeTW(tw);
+  memory->writePTW(ptw);
   memory->writeZTH(zth);
   memory->writeTCWUH(tcwuh);
   memory->writeMINRB(minrb);
@@ -45,6 +48,7 @@ void Config::saveConfig() {
   memory->writeZTOS(ztos);
   memory->writeZTZS(ztzs);
   memory->writeZTB(ztb);
+  memory->writeIPA(ipa);
   memory->setConfigSaved(true);
 }
 
@@ -83,9 +87,9 @@ void Config::setProperty(String name, float value) {
   } else if (name.equals("kg")) {
     memory->writeKG(value);
     kg = value;
-  } else if (name.equals("tw")) {
-    memory->writeTW(value);
-    tw = value;
+  } else if (name.equals("ptw")) {
+    memory->writePTW(value);
+    ptw = value;
   } else if (name.equals("zth")) {
     memory->writeZTH(value);
     zth = value;
@@ -104,5 +108,8 @@ void Config::setProperty(String name, float value) {
   } else if (name.equals("ztzs")) {
     memory->writeZTZS(value);
     ztzs = value;
+  } else if (name.equals("ipa")) {
+    memory->writeIPA((int)value);
+    ipa = (int)value;
   }
 }

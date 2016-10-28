@@ -4,12 +4,13 @@
 #include <Arduino.h>
 
 #define TEMP_SENSOR_PIN A2
+#define ETHERNET_SHIELD_SPI_SWITCH 53
 #define BUZZER_PIN 44
-#define PKW_PIN 51
-#define PCWU_PIN 52
-#define PCO_PIN 53
-#define ZTC_PIN 49
-#define ZTZ_PIN 48
+#define PKW_PIN 35
+#define PCWU_PIN 36
+#define PCO_PIN 37
+#define ZTC_PIN 33
+#define ZTZ_PIN 32
 
 #define MAX_SCK 22
 #define MAX_CS 24
@@ -33,5 +34,6 @@ const uint8_t TCOAddress[] = {0x28, 0xFF, 0x49, 0x35, 0x64, 0x14, 0x01, 0x29};
 const uint8_t TBAddress[] = {0x28, 0xB9, 0xE9, 0xC6, 0x07, 0x00, 0x00, 0xEC};
 const uint8_t TCWUAddress[] = {0x28, 0x06, 0xC0, 0x04, 0x07, 0x00, 0x00, 0xFA};
 const uint8_t TPAddress[] = {0x28, 0x38, 0xE7, 0xC6, 0x07, 0x00, 0x00, 0x93};
+const uint8_t TWAddress[] = {0x28, 0xFF, 0x06, 0x19, 0x64, 0x14, 0x01, 0xCD};
 
 #endif
