@@ -9,19 +9,27 @@ TempSensor::TempSensor(uint8_t tempSensorPin) {
   dallasTemperature->setWaitForConversion(false);
   dallasTemperature->setResolution(12);
 
-  thermocouple = NULL;
+  tskw = NULL;
+  tsko = NULL;
 }
 
 TempSensor::~TempSensor() {
   delete dallasTemperature;
   delete oneWire;
-  delete thermocouple;
+  delete tskw;
+  delete tsko;
 }
 
-void TempSensor::setMAX6675Pins(uint8_t sclk, uint8_t cs, uint8_t miso) {
-  if (thermocouple != NULL)
-    delete thermocouple;
-  thermocouple = new MAX6675(sclk, cs, miso);
+void TempSensor::setTSKWPins(uint8_t sclk, uint8_t cs, uint8_t miso) {
+  if (tskw != NULL)
+    delete tskw;
+  tskw = new MAX6675(sclk, cs, miso);
+}
+
+void TempSensor::setTSKOPins(uint8_t sclk, uint8_t cs, uint8_t miso) {
+  if (tsko != NULL)
+    delete tsko;
+  tsko = new MAX6675(sclk, cs, miso);
 }
 
 void TempSensor::requestTemperatures() {
@@ -59,15 +67,28 @@ float TempSensor::readTP() {
 }
 
 float TempSensor::readTSKW() {
-  if (thermocouple == NULL)
+  if (tskw == NULL)
     return -999.0;
 
-  float temperature = thermocouple->readCelsius();
+  float temperature = tskw->readCelsius();
   return temperature;
 }
 
 float TempSensor::readTW() {
   float temperature = dallasTemperature->getTempC(TWAddress);
+  return temperature;
+}
+
+float TempSensor::readTKO() {
+  float temperature = dallasTemperature->getTempC(TKOAddress);
+  return temperature;
+}
+
+float TempSensor::readTSKO() {
+  if (tsko == NULL)
+    return -999.0;
+
+  float temperature = tsko->readCelsius();
   return temperature;
 }
 
@@ -119,6 +140,18 @@ bool TempSensor::isTWInRange(const float temp) {
   return temp > MIN_TEMP && temp < MAX_TEMP;
 }
 
+bool TempSensor::isTKOInRange(const float temp) {
+  const float MAX_TEMP = 120;
+  const float MIN_TEMP = 0;
+  return temp > MIN_TEMP && temp < MAX_TEMP;
+}
+
+bool TempSensor::isTSKOInRange(const float temp) {
+  const float MAX_TEMP = 600;
+  const float MIN_TEMP = 0;
+  return temp > MIN_TEMP && temp < MAX_TEMP;
+}
+
 void TempSensor::setTZAddress(const uint8_t aTZAddress[]) {
   copyAddress(aTZAddress, TZAddress);
 }
@@ -145,6 +178,10 @@ void TempSensor::setTPAddress(const uint8_t aTPAddress[]) {
 
 void TempSensor::setTWAddress(const uint8_t aTWAddress[]) {
   copyAddress(aTWAddress, TWAddress);
+}
+
+void TempSensor::setTKOAddress(const uint8_t aTKOAddress[]) {
+  copyAddress(aTKOAddress, TKOAddress);
 }
 
 void TempSensor::copyAddress(const uint8_t src[], uint8_t dest[]) {

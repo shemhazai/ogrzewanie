@@ -115,7 +115,8 @@ void initLcd() {
 
 void initTempSensor() {
   tempSensor = new TempSensor(TEMP_SENSOR_PIN);
-  tempSensor->setMAX6675Pins(MAX_SCK, MAX_CS, MAX_SO);
+  tempSensor->setTSKWPins(MAX_SCK_W, MAX_CS_W, MAX_SO_W);
+  tempSensor->setTSKOPins(MAX_SCK_O, MAX_CS_O, MAX_SO_O);
   tempSensor->setTZAddress(TZAddress);
   tempSensor->setTKWAddress(TKWAddress);
   tempSensor->setTCOAddress(TCOAddress);
@@ -123,6 +124,7 @@ void initTempSensor() {
   tempSensor->setTCWUAddress(TCWUAddress);
   tempSensor->setTPAddress(TPAddress);
   tempSensor->setTWAddress(TWAddress);
+  tempSensor->setTKOAddress(TKOAddress);
 
   const int MEASUREMENT_TIME = 1800;
   tempSensor->requestTemperatures();
@@ -154,6 +156,8 @@ void readTemperatures() {
   float tp = tempSensor->readTP();
   float tskw = tempSensor->readTSKW();
   float tw = tempSensor->readTW();
+  float tko = tempSensor->readTKO();
+  float tsko = tempSensor->readTSKO();
 
   bool isTZWorking = tempSensor->isTZInRange(tz);
   bool isTKWWorking = tempSensor->isTKWInRange(tkw);
@@ -163,9 +167,12 @@ void readTemperatures() {
   bool isTPWorking = tempSensor->isTPInRange(tp);
   bool isTSKWWorking = tempSensor->isTSKWInRange(tskw);
   bool isTWWorking = tempSensor->isTWInRange(tw);
+  bool isTKOWorking = true;  // tempSensor->isTKOInRange(tko);
+  bool isTSKOWorking = true; // tempSensor->isTSKOInRange(tsko);
 
   bool working = isTZWorking && isTKWWorking && isTCOWorking && isTBWorking &&
-                 isTCWUWorking && isTPWorking && isTSKWWorking && isTWWorking;
+                 isTCWUWorking && isTPWorking && isTSKWWorking && isTWWorking &&
+                 isTKOWorking && isTSKOWorking;
 
   if (!working) {
     tempReadErrorCount++;
@@ -198,6 +205,8 @@ void readTemperatures() {
   conf->tskw = isTSKWWorking ? tskw : conf->tskw;
   conf->tp = isTPWorking ? tp : conf->tp;
   conf->tw = isTWWorking ? tw : conf->tw;
+  conf->tko = isTKOWorking ? tko : conf->tko;
+  conf->tsko = isTSKOWorking ? tsko : conf->tsko;
 }
 
 void computeTKG() {

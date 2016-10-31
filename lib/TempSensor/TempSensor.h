@@ -10,7 +10,8 @@ public:
   TempSensor(uint8_t tempSensorPin);
   ~TempSensor();
 
-  void setMAX6675Pins(uint8_t sclk, uint8_t cs, uint8_t miso);
+  void setTSKWPins(uint8_t sclk, uint8_t cs, uint8_t miso);
+  void setTSKOPins(uint8_t sclk, uint8_t cs, uint8_t miso);
 
   void requestTemperatures();
 
@@ -22,6 +23,8 @@ public:
   float readTP();
   float readTSKW();
   float readTW();
+  float readTKO();
+  float readTSKO();
 
   bool isTZInRange(const float temp);
   bool isTKWInRange(const float temp);
@@ -31,6 +34,8 @@ public:
   bool isTPInRange(const float temp);
   bool isTSKWInRange(const float temp);
   bool isTWInRange(const float temp);
+  bool isTKOInRange(const float temp);
+  bool isTSKOInRange(const float temp);
 
   void setTZAddress(const uint8_t aTZAddress[]);
   void setTKWAddress(const uint8_t aTKWAddress[]);
@@ -39,6 +44,7 @@ public:
   void setTCWUAddress(const uint8_t aTCWUAddress[]);
   void setTPAddress(const uint8_t aTPAddress[]);
   void setTWAddress(const uint8_t aTWAddress[]);
+  void setTKOAddress(const uint8_t aTKOAddress[]);
 
 private:
   void copyAddress(const uint8_t src[], uint8_t dest[]);
@@ -46,7 +52,8 @@ private:
   DallasTemperature *dallasTemperature;
   OneWire *oneWire;
 
-  MAX6675 *thermocouple;
+  MAX6675 *tskw;
+  MAX6675 *tsko;
 
   uint8_t TZAddress[8];
   uint8_t TKWAddress[8];
@@ -55,6 +62,7 @@ private:
   uint8_t TCWUAddress[8];
   uint8_t TPAddress[8];
   uint8_t TWAddress[8];
+  uint8_t TKOAddress[8];
 };
 
 #endif

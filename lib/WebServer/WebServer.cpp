@@ -54,29 +54,31 @@ void WebServer::handleGet(EthernetClient &client, String data) {
 
   response += "{";
   appendFirst(response, "tz", conf->tz);
-  appendFloat(response, "tw", conf->tw);
-  appendFloat(response, "tkw", conf->tkw);
-  appendFloat(response, "tskw", conf->tskw);
-  appendFloat(response, "tco", conf->tco);
-  appendFloat(response, "tb", conf->tb);
-  appendFloat(response, "ztb", conf->ztb);
-  appendFloat(response, "tcwu", conf->tcwu);
-  appendFloat(response, "tkg", conf->tkg);
-  appendFloat(response, "tp", conf->tp);
-  appendFloat(response, "ztcwu", conf->ztcwu);
-  appendFloat(response, "kg", conf->kg);
-  appendFloat(response, "ptw", conf->ptw);
-  appendFloat(response, "zth", conf->zth);
-  appendFloat(response, "tcwuh", conf->tcwuh);
-  appendFloat(response, "minrb", conf->minrb);
-  appendFloat(response, "maxrb", conf->maxrb);
-  appendFloat(response, "ztos", conf->ztos);
-  appendFloat(response, "ztzs", conf->ztzs);
-  appendInt(response, "ipa", conf->ipa);
-  appendBool(response, "pkw", conf->pkw);
-  appendBool(response, "pko", conf->pko);
-  appendBool(response, "pco", conf->pco);
-  appendBool(response, "pcwu", conf->pcwu);
+  append(response, "tw", conf->tw);
+  append(response, "tkw", conf->tkw);
+  append(response, "tskw", conf->tskw);
+  append(response, "tco", conf->tco);
+  append(response, "tb", conf->tb);
+  append(response, "ztb", conf->ztb);
+  append(response, "tcwu", conf->tcwu);
+  append(response, "tkg", conf->tkg);
+  append(response, "tp", conf->tp);
+  append(response, "ztcwu", conf->ztcwu);
+  append(response, "kg", conf->kg);
+  append(response, "ptw", conf->ptw);
+  append(response, "zth", conf->zth);
+  append(response, "tcwuh", conf->tcwuh);
+  append(response, "minrb", conf->minrb);
+  append(response, "maxrb", conf->maxrb);
+  append(response, "ztos", conf->ztos);
+  append(response, "ztzs", conf->ztzs);
+  append(response, "ipa", conf->ipa);
+  append(response, "pkw", conf->pkw);
+  append(response, "pko", conf->pko);
+  append(response, "pco", conf->pco);
+  append(response, "pcwu", conf->pcwu);
+  append(response, "tko", conf->tko);
+  append(response, "tsko", conf->tsko);
   response += "}";
 
   if (client) {
@@ -112,14 +114,14 @@ void WebServer::appendFirst(String &response, String name, float value) {
   response += "\"" + name + "\":" + String(value);
 }
 
-void WebServer::appendFloat(String &response, String name, float value) {
+void WebServer::append(String &response, String name, float value) {
   response += ",\"" + name + "\":" + String(value);
 }
 
-void WebServer::appendInt(String &response, String name, int value) {
+void WebServer::append(String &response, String name, int value) {
   response += ",\"" + name + "\":" + String(value);
 }
 
-void WebServer::appendBool(String &response, String name, bool value) {
+void WebServer::append(String &response, String name, bool value) {
   response += ",\"" + name + "\":" + String(value);
 }

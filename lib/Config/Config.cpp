@@ -3,7 +3,8 @@
 Config::Config(Memory *aMemory) {
   memory = aMemory;
 
-  tz = tw = tkw = tskw = tco = tb = tcwu = tkg = tp = 0;
+  tz = tw = tkw = tskw = tco = tb = tcwu = tkg = tp = tko = tsko = 0;
+  pkw = pko = pco = pcwu = false;
   ztcwu = 60;
   kg = 0.9;
   ptw = 21;
@@ -15,10 +16,6 @@ Config::Config(Memory *aMemory) {
   ztzs = 1.6;
   ztb = 80;
   ipa = 1;
-  pkw = false;
-  pko = false;
-  pco = false;
-  pcwu = false;
 
   if (memory->isConfigSaved()) {
     readConfig();

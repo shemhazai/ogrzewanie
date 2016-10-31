@@ -44,6 +44,8 @@ public:
   bool pko;    // Pompa kotła olejowego
   bool pco;    // Pompa centralnego ogrzewania
   bool pcwu;   // Pompa ciepłej wody użytkowej
+  float tko;   // Temp. kotła olejowego
+  float tsko;  // Temp. spalin kotła olejowego
 
 private:
   void saveConfig();
