@@ -15,6 +15,10 @@ Config::Config(Memory *aMemory) {
   ztzs = 1.6;
   ztb = 80;
   ipa = 1;
+  pkw = false;
+  pko = false;
+  pco = false;
+  pcwu = false;
 
   if (memory->isConfigSaved()) {
     readConfig();

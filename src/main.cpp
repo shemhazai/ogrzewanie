@@ -67,20 +67,26 @@ void setup() {
 void loop() {
   if (conf->shouldTurnOnPKW()) {
     digitalWrite(PKW_PIN, HIGH);
+    conf->pkw = true;
   } else if (conf->shouldTurnOffPKW()) {
     digitalWrite(PKW_PIN, LOW);
+    conf->pkw = false;
   }
 
   if (conf->shouldTurnOnPCWU()) {
     digitalWrite(PCWU_PIN, HIGH);
+    conf->pcwu = true;
   } else if (conf->shouldTurnOffPCWU()) {
     digitalWrite(PCWU_PIN, LOW);
+    conf->pcwu = false;
   }
 
   if (conf->shouldTurnOnPCO()) {
     digitalWrite(PCO_PIN, HIGH);
+    conf->pco = true;
   } else if (conf->shouldTurnOffPCO()) {
     digitalWrite(PCO_PIN, LOW);
+    conf->pco = false;
   }
 
   server->handleClient();

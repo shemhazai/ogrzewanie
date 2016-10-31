@@ -40,6 +40,10 @@ public:
   float ztos;  // Zawór trójdrogowy, o ile otworzyć (w stopniach)
   float ztzs;  // Zawór trójdrogowy, o ile zamknąć (w stopniach)
   int ipa;     // Ilość prób odczytu temperatury do awarii
+  bool pkw;    // Pompa kotła węglowego
+  bool pko;    // Pompa kotła olejowego
+  bool pco;    // Pompa centralnego ogrzewania
+  bool pcwu;   // Pompa ciepłej wody użytkowej
 
 private:
   void saveConfig();

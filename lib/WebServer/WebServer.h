@@ -17,7 +17,9 @@ private:
   void handleGet(EthernetClient &client, String data);
   void handleSet(EthernetClient &client, String data);
   void appendFirst(String &response, String name, float value);
-  void append(String &response, String name, float value);
+  void appendFloat(String &response, String name, float value);
+  void appendInt(String &response, String name, int value);
+  void appendBool(String &response, String name, bool value);
 
   void initEthernet();
   void initServer();
