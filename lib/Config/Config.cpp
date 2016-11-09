@@ -14,7 +14,7 @@ Config::Config(Memory *aMemory) {
   maxrb = 5.0;
   ztos = 1.0;
   ztzs = 1.6;
-  ztb = 80;
+  ztko = 80;
   ipa = 1;
 
   if (memory->isConfigSaved()) {
@@ -34,7 +34,7 @@ void Config::readConfig() {
   maxrb = memory->readMAXRB();
   ztos = memory->readZTOS();
   ztzs = memory->readZTZS();
-  tb = memory->readZTB();
+  ztko = memory->readZTKO();
   ipa = memory->readIPA();
 }
 
@@ -48,7 +48,7 @@ void Config::saveConfig() {
   memory->writeMAXRB(maxrb);
   memory->writeZTOS(ztos);
   memory->writeZTZS(ztzs);
-  memory->writeZTB(ztb);
+  memory->writeZTKO(ztko);
   memory->writeIPA(ipa);
   memory->setConfigSaved(true);
 }
@@ -79,9 +79,9 @@ void Config::setProperty(String name, float value) {
   name.toLowerCase();
   name.trim();
 
-  if (name.equals("ztb")) {
-    memory->writeZTB(value);
-    ztb = value;
+  if (name.equals("ztko")) {
+    memory->writeZTKO(value);
+    ztko = value;
   } else if (name.equals("ztcwu")) {
     memory->writeZTCWU(value);
     ztcwu = value;

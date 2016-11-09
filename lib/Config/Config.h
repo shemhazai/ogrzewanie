@@ -23,7 +23,7 @@ public:
   float tkw;   // Temp. kotła węglowego
   float tskw;  // Temp. spalin kotła węglowego
   float tco;   // Temp. centralnego ogrzewania
-  float ztb;   // Zadana temp. bufora
+  float ztko;  // Zadana temp. kotła olejowego
   float tb;    // Temp. bufora
   float tcwu;  // Temp. ciepłej wody użytkowej
   float tkg;   // Temp. krzywa grzewcza

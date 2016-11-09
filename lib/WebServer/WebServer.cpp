@@ -37,7 +37,7 @@ void WebServer::handleClient() {
 }
 
 void WebServer::handleRequest(EthernetClient &client, String data) {
-  if (data.equals("get")) {
+  if (data.startsWith("get")) {
     handleGet(client, data);
   } else if (data.startsWith("set ")) {
     data.remove(0, 4); // skip "set "
@@ -49,38 +49,7 @@ void WebServer::handleRequest(EthernetClient &client, String data) {
 }
 
 void WebServer::handleGet(EthernetClient &client, String data) {
-  String response = "";
-  response.reserve(256);
-
-  response += "{";
-  appendFirst(response, "tz", conf->tz);
-  append(response, "tw", conf->tw);
-  append(response, "tkw", conf->tkw);
-  append(response, "tskw", conf->tskw);
-  append(response, "tco", conf->tco);
-  append(response, "tb", conf->tb);
-  append(response, "ztb", conf->ztb);
-  append(response, "tcwu", conf->tcwu);
-  append(response, "tkg", conf->tkg);
-  append(response, "tp", conf->tp);
-  append(response, "ztcwu", conf->ztcwu);
-  append(response, "kg", conf->kg);
-  append(response, "ptw", conf->ptw);
-  append(response, "zth", conf->zth);
-  append(response, "tcwuh", conf->tcwuh);
-  append(response, "minrb", conf->minrb);
-  append(response, "maxrb", conf->maxrb);
-  append(response, "ztos", conf->ztos);
-  append(response, "ztzs", conf->ztzs);
-  append(response, "ipa", conf->ipa);
-  append(response, "pkw", conf->pkw);
-  append(response, "pko", conf->pko);
-  append(response, "pco", conf->pco);
-  append(response, "pcwu", conf->pcwu);
-  append(response, "tko", conf->tko);
-  append(response, "tsko", conf->tsko);
-  response += "}";
-
+  String response = buildResponse();
   if (client) {
     client.println(response);
     client.flush();
@@ -108,6 +77,41 @@ void WebServer::handleSet(EthernetClient &client, String data) {
     data.remove(0, delimeter + 1);
     data.trim();
   }
+}
+
+String WebServer::buildResponse() {
+  String response = "";
+  response.reserve(256);
+
+  response += "{";
+  appendFirst(response, "tz", conf->tz);
+  append(response, "tw", conf->tw);
+  append(response, "tkw", conf->tkw);
+  append(response, "tskw", conf->tskw);
+  append(response, "tco", conf->tco);
+  append(response, "tb", conf->tb);
+  append(response, "ztko", conf->ztko);
+  append(response, "tcwu", conf->tcwu);
+  append(response, "tkg", conf->tkg);
+  append(response, "tp", conf->tp);
+  append(response, "ztcwu", conf->ztcwu);
+  append(response, "kg", conf->kg);
+  append(response, "ptw", conf->ptw);
+  append(response, "zth", conf->zth);
+  append(response, "tcwuh", conf->tcwuh);
+  append(response, "minrb", conf->minrb);
+  append(response, "maxrb", conf->maxrb);
+  append(response, "ztos", conf->ztos);
+  append(response, "ztzs", conf->ztzs);
+  append(response, "ipa", conf->ipa);
+  append(response, "pkw", conf->pkw);
+  append(response, "pko", conf->pko);
+  append(response, "pco", conf->pco);
+  append(response, "pcwu", conf->pcwu);
+  append(response, "tko", conf->tko);
+  append(response, "tsko", conf->tsko);
+  response += "}";
+  return response;
 }
 
 void WebServer::appendFirst(String &response, String name, float value) {

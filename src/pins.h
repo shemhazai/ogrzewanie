@@ -16,20 +16,20 @@
 #define MAX_CS_W 24
 #define MAX_SO_W 23
 
-#define MAX_SCK_O 25
-#define MAX_CS_O 26
-#define MAX_SO_O 27
+#define MAX_SCK_O 22
+#define MAX_CS_O 25
+#define MAX_SO_O 23
 
 #define RS 13
 #define RW 12
 #define ENABLE 11
-#define D0 10
+#define D0 14
 #define D1 9
 #define D2 8
 #define D3 7
 #define D4 6
 #define D5 5
-#define D6 4
+#define D6 15
 #define D7 3
 
 const uint8_t TZAddress[] = {0x28, 0xFF, 0x11, 0xB1, 0x64, 0x14, 0x02, 0xB7};

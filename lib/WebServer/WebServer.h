@@ -16,6 +16,9 @@ private:
   void handleRequest(EthernetClient &client, String data);
   void handleGet(EthernetClient &client, String data);
   void handleSet(EthernetClient &client, String data);
+
+  String buildResponse();
+
   void appendFirst(String &response, String name, float value);
   void append(String &response, String name, float value);
   void append(String &response, String name, int value);

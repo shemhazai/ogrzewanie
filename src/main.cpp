@@ -65,28 +65,30 @@ void setup() {
 }
 
 void loop() {
-  if (conf->shouldTurnOnPKW()) {
-    digitalWrite(PKW_PIN, HIGH);
-    conf->pkw = true;
-  } else if (conf->shouldTurnOffPKW()) {
-    digitalWrite(PKW_PIN, LOW);
-    conf->pkw = false;
-  }
+  if (tempReadErrorCount < conf->ipa) {
+    if (conf->shouldTurnOnPKW()) {
+      digitalWrite(PKW_PIN, HIGH);
+      conf->pkw = true;
+    } else if (conf->shouldTurnOffPKW()) {
+      digitalWrite(PKW_PIN, LOW);
+      conf->pkw = false;
+    }
 
-  if (conf->shouldTurnOnPCWU()) {
-    digitalWrite(PCWU_PIN, HIGH);
-    conf->pcwu = true;
-  } else if (conf->shouldTurnOffPCWU()) {
-    digitalWrite(PCWU_PIN, LOW);
-    conf->pcwu = false;
-  }
+    if (conf->shouldTurnOnPCWU()) {
+      digitalWrite(PCWU_PIN, HIGH);
+      conf->pcwu = true;
+    } else if (conf->shouldTurnOffPCWU()) {
+      digitalWrite(PCWU_PIN, LOW);
+      conf->pcwu = false;
+    }
 
-  if (conf->shouldTurnOnPCO()) {
-    digitalWrite(PCO_PIN, HIGH);
-    conf->pco = true;
-  } else if (conf->shouldTurnOffPCO()) {
-    digitalWrite(PCO_PIN, LOW);
-    conf->pco = false;
+    if (conf->shouldTurnOnPCO()) {
+      digitalWrite(PCO_PIN, HIGH);
+      conf->pco = true;
+    } else if (conf->shouldTurnOffPCO()) {
+      digitalWrite(PCO_PIN, LOW);
+      conf->pco = false;
+    }
   }
 
   server->handleClient();
@@ -167,8 +169,8 @@ void readTemperatures() {
   bool isTPWorking = tempSensor->isTPInRange(tp);
   bool isTSKWWorking = tempSensor->isTSKWInRange(tskw);
   bool isTWWorking = tempSensor->isTWInRange(tw);
-  bool isTKOWorking = true;  // tempSensor->isTKOInRange(tko);
-  bool isTSKOWorking = true; // tempSensor->isTSKOInRange(tsko);
+  bool isTKOWorking = tempSensor->isTKOInRange(tko);
+  bool isTSKOWorking = tempSensor->isTSKOInRange(tsko);
 
   bool working = isTZWorking && isTKWWorking && isTCOWorking && isTBWorking &&
                  isTCWUWorking && isTPWorking && isTSKWWorking && isTWWorking &&
@@ -177,21 +179,21 @@ void readTemperatures() {
   if (!working) {
     tempReadErrorCount++;
 
-    if (tempReadErrorCount == conf->ipa) {
+    if (tempReadErrorCount >= conf->ipa) {
       stopOnError();
 
       char text[84];
-      sprintf(text, "Tcwu: %c  Tz: %c\n"
-                    "Tkw : %c  Tb: %c\n"
-                    "Tco : %c  Tp: %c\n"
-                    "Tskw: %c  Tw: %c",
-              (isTCWUWorking ? '+' : '-'), (isTZWorking ? '+' : '-'),
-              (isTKWWorking ? '+' : '-'), (isTBWorking ? '+' : '-'),
-              (isTCOWorking ? '+' : '-'), (isTPWorking ? '+' : '-'),
-              (isTSKWWorking ? '+' : '-'), (isTWWorking ? '+' : '-'));
+      sprintf(text, " Awaria czujnikow\n"
+                    "   %4s %3s %2s %2s\n"
+                    "   %4s %3s %2s\n"
+                    "   %4s %3s %2s",
+              isTSKWWorking ? "" : "TSKW", isTKWWorking ? "" : "TKW",
+              isTZWorking ? "" : "TZ", isTBWorking ? "" : "TB",
+              isTSKOWorking ? "" : "TSKO", isTKOWorking ? "" : "TKO",
+              isTPWorking ? "" : "TP", isTCWUWorking ? "" : "TCWU",
+              isTCOWorking ? "" : "TCO", isTWWorking ? "" : "TW");
+
       printText(text);
-      while (true)
-        delay(1000);
     }
   } else {
     tempReadErrorCount = 0;
@@ -288,4 +290,8 @@ void stopOnError() {
   digitalWrite(ZTZ_PIN, HIGH);
   digitalWrite(ZTC_PIN, LOW);
   digitalWrite(BUZZER_PIN, HIGH);
+
+  conf->pkw = true;
+  conf->pcwu = false;
+  conf->pco = false;
 }
