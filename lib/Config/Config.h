@@ -15,6 +15,7 @@ public:
   bool shouldTurnOffPCO();
   bool shouldOpenZT();
   bool shouldCloseZT();
+  bool shouldBeep();
 
   void setProperty(String name, float value);
 

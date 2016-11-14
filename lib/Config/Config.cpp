@@ -75,6 +75,8 @@ bool Config::shouldOpenZT() { return (tco <= (tkg - zth)); }
 
 bool Config::shouldCloseZT() { return (tco >= (tkg + zth)); }
 
+bool Config::shouldBeep() { return (tskw > 470) || (tkw > 95) || (tb > 95); }
+
 void Config::setProperty(String name, float value) {
   name.toLowerCase();
   name.trim();

@@ -34,6 +34,7 @@ void requestAndReadTemperatures();
 void readTemperatures();
 void computeTKG();
 void controlZT();
+void beeper();
 void updateDisplay();
 void printText(const char *text);
 
@@ -139,6 +140,7 @@ void initTimer() {
   timer.setInterval(requestAndReadTemperatures, 2000); // min. 1800ms
   timer.setInterval(computeTKG, 600000);               // 10min.
   timer.setInterval(updateDisplay, 1000);
+  timer.setInterval(beeper, 800);
 }
 
 void initServer() { server = new WebServer(conf); }
@@ -236,6 +238,15 @@ void controlZT() {
     timer.setTimeout(controlZT, closeTime + 7000);
   } else {
     timer.setTimeout(controlZT, 5000);
+  }
+}
+
+void beepOff() { digitalWrite(BUZZER_PIN, LOW); }
+
+void beeper() {
+  if (conf->shouldBeep()) {
+    digitalWrite(BUZZER_PIN, HIGH);
+    timer.setTimeout(beepOff, 150);
   }
 }
 
