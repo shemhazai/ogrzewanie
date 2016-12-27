@@ -85,7 +85,7 @@ bool Config::shouldTurnOffKO() {
 }
 
 bool Config::shouldTurnOnPKO() {
-  return (tsko > 80.0) && (tko > 45.0) && (tb <= 80.0);
+  return (tsko > 80.0) && (tko > 45.0) && (tb <= 79.0);
 }
 
 bool Config::shouldTurnOffPKO() {
