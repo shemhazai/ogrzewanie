@@ -11,6 +11,10 @@
 #define PCO_PIN 37
 #define ZTC_PIN 33
 #define ZTZ_PIN 32
+#define FURNACE_SWITCH_PIN 49
+#define KO_FURNACE_PIN 22
+#define KO_FURNACE_PIN_COPY 51
+#define PKO_PIN 57
 
 #define MAX_SCK_W 22
 #define MAX_CS_W 24

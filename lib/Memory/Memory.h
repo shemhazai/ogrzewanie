@@ -17,7 +17,6 @@ public:
   float readMAXRB();
   float readZTOS();
   float readZTZS();
-  float readZTKO();
   int readIPA();
 
   void setConfigSaved(bool saved);
@@ -31,7 +30,6 @@ public:
   void writeMAXRB(const float maxrb);
   void writeZTOS(const float ztos);
   void writeZTZS(const float ztzs);
-  void writeZTKO(const float ztko);
   void writeIPA(const int ipa);
 
 private:
@@ -41,7 +39,7 @@ private:
   float readFloat(int address);
   int readInt(int address);
 
-  const static int CONFIG_SAVED = 2;
+  const static int CONFIG_SAVED = 3;
   const static int CONFIG_NOT_SAVED = 0;
 
   const static int CONFIG_SAVED_ADDRESS = 0;
@@ -54,8 +52,7 @@ private:
   const static int MAXRB_ADDRESS = 26;
   const static int ZTOS_ADDRESS = 30;
   const static int ZTZS_ADDRESS = 34;
-  const static int ZTKO_ADDRESS = 38;
-  const static int IPA_ADDRESS = 42;
+  const static int IPA_ADDRESS = 38;
 };
 
 #endif

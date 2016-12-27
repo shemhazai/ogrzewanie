@@ -14,8 +14,9 @@ Config::Config(Memory *aMemory) {
   maxrb = 5.0;
   ztos = 1.0;
   ztzs = 1.6;
-  ztko = 80;
   ipa = 1;
+  kor = 0;
+  ko = false;
 
   if (memory->isConfigSaved()) {
     readConfig();
@@ -34,7 +35,6 @@ void Config::readConfig() {
   maxrb = memory->readMAXRB();
   ztos = memory->readZTOS();
   ztzs = memory->readZTZS();
-  ztko = memory->readZTKO();
   ipa = memory->readIPA();
 }
 
@@ -48,16 +48,15 @@ void Config::saveConfig() {
   memory->writeMAXRB(maxrb);
   memory->writeZTOS(ztos);
   memory->writeZTZS(ztzs);
-  memory->writeZTKO(ztko);
   memory->writeIPA(ipa);
   memory->setConfigSaved(true);
 }
 
 bool Config::shouldTurnOnPKW() {
-  return ((tkw >= 46) && (tskw >= 110)) || tkw >= 95;
+  return ((tkw >= 46) && (tskw >= 180)) || tkw >= 93;
 }
 
-bool Config::shouldTurnOffPKW() { return tskw <= 100 && tkw <= 93; }
+bool Config::shouldTurnOffPKW() { return tskw <= 150 && tkw <= 91; }
 
 bool Config::shouldTurnOnPCWU() {
   return (tb >= (tcwu + maxrb)) && (tcwu <= (ztcwu - tcwuh));
@@ -77,14 +76,27 @@ bool Config::shouldCloseZT() { return (tco >= (tkg + zth)); }
 
 bool Config::shouldBeep() { return (tskw > 470) || (tkw > 95) || (tb > 95); }
 
+bool Config::shouldTurnOnKO() {
+  return ko && (tb < 60.0) && (tko < 75.0);
+}
+
+bool Config::shouldTurnOffKO() {
+  return (tb > 80.0) || (tko > 81.0);
+}
+
+bool Config::shouldTurnOnPKO() {
+  return (tsko > 80.0) && (tko > 45.0) && (tb <= 80.0);
+}
+
+bool Config::shouldTurnOffPKO() {
+  return pko && (tb > 80.0);
+}
+
 void Config::setProperty(String name, float value) {
   name.toLowerCase();
   name.trim();
 
-  if (name.equals("ztko")) {
-    memory->writeZTKO(value);
-    ztko = value;
-  } else if (name.equals("ztcwu")) {
+  if (name.equals("ztcwu")) {
     memory->writeZTCWU(value);
     ztcwu = value;
   } else if (name.equals("kg")) {
@@ -115,4 +127,25 @@ void Config::setProperty(String name, float value) {
     memory->writeIPA((int)value);
     ipa = (int)value;
   }
+}
+
+void Config::computeTKG() {
+  float t = (ptw - 20.0) * 4.2;
+  float kg3 = kg * kg * kg;
+  float corr = 0;
+
+  float delta = ptw - tw;
+  if (delta >= 0.2) {
+    corr = 5.0;
+    kor = 1;
+  } else if (delta <= -0.2) {
+    corr = -5.0;
+    kor = -1;
+  } else if ((kor == 1) && (tw < ptw)) {
+    corr = 5.0;
+  } else {
+    kor = 0;
+  }
+
+  tkg = -0.75 * kg3 * (tz - t) + (44 * kg) + t + corr;
 }

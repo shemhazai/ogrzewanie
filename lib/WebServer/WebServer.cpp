@@ -42,6 +42,7 @@ void WebServer::handleRequest(EthernetClient &client, String data) {
   } else if (data.startsWith("set ")) {
     data.remove(0, 4); // skip "set "
     handleSet(client, data);
+    conf->computeTKG();
   }
 
   delay(1);
@@ -81,7 +82,7 @@ void WebServer::handleSet(EthernetClient &client, String data) {
 
 String WebServer::buildResponse() {
   String response = "";
-  response.reserve(256);
+  response.reserve(320);
 
   response += "{";
   appendFirst(response, "tz", conf->tz);
@@ -90,7 +91,6 @@ String WebServer::buildResponse() {
   append(response, "tskw", conf->tskw);
   append(response, "tco", conf->tco);
   append(response, "tb", conf->tb);
-  append(response, "ztko", conf->ztko);
   append(response, "tcwu", conf->tcwu);
   append(response, "tkg", conf->tkg);
   append(response, "tp", conf->tp);
@@ -110,7 +110,9 @@ String WebServer::buildResponse() {
   append(response, "pcwu", conf->pcwu);
   append(response, "tko", conf->tko);
   append(response, "tsko", conf->tsko);
+  append(response, "kor", conf->kor);
   response += "}";
+
   return response;
 }
 

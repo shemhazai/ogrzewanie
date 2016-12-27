@@ -30,8 +30,6 @@ float Memory::readZTOS() { return readFloat(ZTOS_ADDRESS); }
 
 float Memory::readZTZS() { return readFloat(ZTZS_ADDRESS); }
 
-float Memory::readZTKO() { return readFloat(ZTKO_ADDRESS); }
-
 int Memory::readIPA() { return readInt(IPA_ADDRESS); }
 
 void Memory::writeZTCWU(const float ztcwu) { writeFloat(ZTCWU_ADDRESS, ztcwu); }
@@ -51,8 +49,6 @@ void Memory::writeMAXRB(const float maxrb) { writeFloat(MAXRB_ADDRESS, maxrb); }
 void Memory::writeZTOS(const float ztos) { writeFloat(ZTOS_ADDRESS, ztos); }
 
 void Memory::writeZTZS(const float ztzs) { writeFloat(ZTZS_ADDRESS, ztzs); }
-
-void Memory::writeZTKO(const float ztko) { writeFloat(ZTKO_ADDRESS, ztko); }
 
 void Memory::writeIPA(const int ipa) { writeInt(IPA_ADDRESS, ipa); }
 

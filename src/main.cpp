@@ -19,6 +19,7 @@ TempSensor *tempSensor;
 Timer timer;
 
 int tempReadErrorCount = 0;
+int8_t pkoTimerSlot = -1;
 
 void setup();
 void loop();
@@ -32,12 +33,14 @@ void initServer();
 
 void requestAndReadTemperatures();
 void readTemperatures();
+void readFurnaceSwitch();
 void computeTKG();
 void controlZT();
 void beeper();
 void updateDisplay();
 void printText(const char *text);
 
+void turnOffPKO();
 void stopOnError();
 
 int main() {
@@ -60,6 +63,7 @@ void setup() {
   delay(150);
   digitalWrite(BUZZER_PIN, LOW);
 
+  readFurnaceSwitch();
   computeTKG();
   controlZT(); // recursive function
   updateDisplay();
@@ -89,6 +93,28 @@ void loop() {
     } else if (conf->shouldTurnOffPCO()) {
       digitalWrite(PCO_PIN, LOW);
       conf->pco = false;
+    }
+
+    if (conf->shouldTurnOnKO()) {
+      digitalWrite(KO_FURNACE_PIN, HIGH);
+      digitalWrite(KO_FURNACE_PIN_COPY, HIGH);
+    } else if (conf->shouldTurnOffKO()){
+      digitalWrite(KO_FURNACE_PIN, LOW);
+      digitalWrite(KO_FURNACE_PIN_COPY, LOW);
+    }
+
+    if (conf->shouldTurnOnPKO()) {
+      digitalWrite(PKO_PIN, HIGH);
+      conf->pko = true;
+      if (pkoTimerSlot != -1) {
+          timer.deleteTimer(pkoTimerSlot);
+          pkoTimerSlot = -1;
+      }
+    } else if (conf->shouldTurnOffPKO()) {
+      if (pkoTimerSlot == -1) {
+        pkoTimerSlot = timer.setTimeout(
+          turnOffPKO, 900000);
+      }
     }
   }
 
@@ -141,6 +167,7 @@ void initTimer() {
   timer.setInterval(computeTKG, 600000);               // 10min.
   timer.setInterval(updateDisplay, 1000);
   timer.setInterval(beeper, 800);
+  timer.setInterval(readFurnaceSwitch, 1000);
 }
 
 void initServer() { server = new WebServer(conf); }
@@ -213,10 +240,11 @@ void readTemperatures() {
   conf->tsko = isTSKOWorking ? tsko : conf->tsko;
 }
 
-void computeTKG() {
-  // kg - krzywa grzewcza, tw - temperatura wewnątrz
-  conf->tkg = conf->kg * (conf->ptw - conf->tz) + conf->ptw;
+void readFurnaceSwitch() {
+  conf->ko = digitalRead(FURNACE_SWITCH_PIN) == HIGH;
 }
+
+void computeTKG() { conf->computeTKG(); }
 
 void openZTCEnd() { digitalWrite(ZTC_PIN, LOW); }
 void openZTZEnd() { digitalWrite(ZTZ_PIN, LOW); }
@@ -290,6 +318,12 @@ void printText(const char *text) {
       lcd->print(text[i]);
     }
   }
+}
+
+void turnOffPKO() {
+  digitalWrite(PKO_PIN, LOW);
+  conf->pko = false;
+  pkoTimerSlot = -1;
 }
 
 void stopOnError() {

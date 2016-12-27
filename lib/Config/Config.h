@@ -16,15 +16,19 @@ public:
   bool shouldOpenZT();
   bool shouldCloseZT();
   bool shouldBeep();
+  bool shouldTurnOnKO();
+  bool shouldTurnOffKO();
+  bool shouldTurnOnPKO();
+  bool shouldTurnOffPKO();
 
   void setProperty(String name, float value);
+  void computeTKG();
 
   float tz;    // Temp. zewnętrzna
   float tw;    // Temp. wewnętrzna
   float tkw;   // Temp. kotła węglowego
   float tskw;  // Temp. spalin kotła węglowego
   float tco;   // Temp. centralnego ogrzewania
-  float ztko;  // Zadana temp. kotła olejowego
   float tb;    // Temp. bufora
   float tcwu;  // Temp. ciepłej wody użytkowej
   float tkg;   // Temp. krzywa grzewcza
@@ -47,6 +51,8 @@ public:
   bool pcwu;   // Pompa ciepłej wody użytkowej
   float tko;   // Temp. kotła olejowego
   float tsko;  // Temp. spalin kotła olejowego
+  int8_t kor;  // Czy zastosowano korekcję.
+  bool ko;     // Czy kocioł olejowy
 
 private:
   void saveConfig();
