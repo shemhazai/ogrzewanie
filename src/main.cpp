@@ -19,7 +19,6 @@ TempSensor *tempSensor;
 Timer timer;
 
 int tempReadErrorCount = 0;
-int8_t pkoTimerSlot = -1;
 
 void setup();
 void loop();
@@ -40,7 +39,6 @@ void beeper();
 void updateDisplay();
 void printText(const char *text);
 
-void turnOffPKO();
 void stopOnError();
 
 int main() {
@@ -95,7 +93,10 @@ void loop() {
       conf->pco = false;
     }
 
-    if (conf->shouldTurnOnKO()) {
+    if (conf->isKODisabled()) {
+      digitalWrite(KO_FURNACE_PIN, LOW);
+      digitalWrite(KO_FURNACE_PIN_COPY, LOW);
+    } else if (conf->shouldTurnOnKO()) {
       digitalWrite(KO_FURNACE_PIN, HIGH);
       digitalWrite(KO_FURNACE_PIN_COPY, HIGH);
     } else if (conf->shouldTurnOffKO()){
@@ -106,15 +107,9 @@ void loop() {
     if (conf->shouldTurnOnPKO()) {
       digitalWrite(PKO_PIN, HIGH);
       conf->pko = true;
-      if (pkoTimerSlot != -1) {
-          timer.deleteTimer(pkoTimerSlot);
-          pkoTimerSlot = -1;
-      }
     } else if (conf->shouldTurnOffPKO()) {
-      if (pkoTimerSlot == -1) {
-        pkoTimerSlot = timer.setTimeout(
-          turnOffPKO, 900000);
-      }
+      digitalWrite(PKO_PIN, LOW);
+      conf->pko = false;
     }
   }
 
@@ -131,6 +126,10 @@ void initPins() {
   pinMode(PCO_PIN, OUTPUT);
   pinMode(ZTZ_PIN, OUTPUT);
   pinMode(ZTC_PIN, OUTPUT);
+  pinMode(FURNACE_SWITCH_PIN, INPUT);
+  pinMode(KO_FURNACE_PIN, OUTPUT);
+  pinMode(KO_FURNACE_PIN_COPY, OUTPUT);
+  pinMode(PKO_PIN, OUTPUT);
   pinMode(ETHERNET_SHIELD_SPI_SWITCH, OUTPUT);
 }
 
@@ -320,12 +319,6 @@ void printText(const char *text) {
   }
 }
 
-void turnOffPKO() {
-  digitalWrite(PKO_PIN, LOW);
-  conf->pko = false;
-  pkoTimerSlot = -1;
-}
-
 void stopOnError() {
   timer.deleteAllTimers();
 
@@ -334,6 +327,9 @@ void stopOnError() {
   digitalWrite(PCO_PIN, LOW);
   digitalWrite(ZTZ_PIN, HIGH);
   digitalWrite(ZTC_PIN, LOW);
+  digitalWrite(KO_FURNACE_PIN, LOW);
+  digitalWrite(KO_FURNACE_PIN_COPY, LOW);
+  digitalWrite(PKO_PIN, LOW);
   digitalWrite(BUZZER_PIN, HIGH);
 
   conf->pkw = true;

@@ -20,6 +20,7 @@ public:
   bool shouldTurnOffKO();
   bool shouldTurnOnPKO();
   bool shouldTurnOffPKO();
+  bool isKODisabled();
 
   void setProperty(String name, float value);
   void computeTKG();
