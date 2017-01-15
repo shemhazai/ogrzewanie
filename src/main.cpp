@@ -111,6 +111,12 @@ void loop() {
       digitalWrite(PKO_PIN, LOW);
       conf->pko = false;
     }
+
+    if (conf->shouldTurnOnPFA()) {
+      digitalWrite(PFA_PIN, HIGH);
+    } else {
+      digitalWrite(PFA_PIN, LOW);
+    }
   }
 
   server->handleClient();
@@ -131,6 +137,7 @@ void initPins() {
   pinMode(KO_FURNACE_PIN_COPY, OUTPUT);
   pinMode(PKO_PIN, OUTPUT);
   pinMode(ETHERNET_SHIELD_SPI_SWITCH, OUTPUT);
+  pinMode(PFA_PIN, OUTPUT);
 }
 
 void initLcd() {

@@ -77,7 +77,7 @@ bool Config::shouldCloseZT() { return (tco >= (tkg + zth)); }
 bool Config::shouldBeep() { return (tskw > 470) || (tkw > 95) || (tb > 95); }
 
 bool Config::shouldTurnOnKO() {
-  return ko && (tb < 65.0) && (tko < 75.0);
+  return ko && (tb < 68.0) && (tko < 75.0) && (tskw < 80.0);
 }
 
 bool Config::shouldTurnOffKO() {
@@ -85,7 +85,7 @@ bool Config::shouldTurnOffKO() {
 }
 
 bool Config::shouldTurnOnPKO() {
-  return ((tsko > 80.0) && (tko > 45.0) && (tb <= 80.0))
+  return ((tsko > 150.0) && (tko > 45.0) && (tb <= 80.0))
     || (tko - tb > 2);
 }
 
@@ -95,6 +95,10 @@ bool Config::shouldTurnOffPKO() {
 
 bool Config::isKODisabled() {
   return !ko;
+}
+
+bool Config::shouldTurnOnPFA() {
+  return tsko < 150;
 }
 
 void Config::setProperty(String name, float value) {

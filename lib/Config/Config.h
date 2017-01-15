@@ -21,6 +21,7 @@ public:
   bool shouldTurnOnPKO();
   bool shouldTurnOffPKO();
   bool isKODisabled();
+  bool shouldTurnOnPFA(); // pump fulfillment addend
 
   void setProperty(String name, float value);
   void computeTKG();
