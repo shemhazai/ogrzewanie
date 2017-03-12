@@ -54,7 +54,8 @@ public:
   float tko;   // Temp. kotła olejowego
   float tsko;  // Temp. spalin kotła olejowego
   int8_t kor;  // Czy zastosowano korekcję.
-  bool ko;     // Czy kocioł olejowy
+  bool ko;     // Włącznik kotła olejowego
+  bool ako;    // Awaria kotła olejowego
 
 private:
   void saveConfig();

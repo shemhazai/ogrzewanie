@@ -16,7 +16,7 @@ Config::Config(Memory *aMemory) {
   ztzs = 1.6;
   ipa = 1;
   kor = 0;
-  ko = false;
+  ko = ako = false;
 
   if (memory->isConfigSaved()) {
     readConfig();
@@ -70,14 +70,20 @@ bool Config::shouldTurnOnPCO() { return tz < 17; }
 
 bool Config::shouldTurnOffPCO() { return tz >= 18; }
 
-bool Config::shouldOpenZT() { return (tco <= (tkg - zth)); }
+bool Config::shouldOpenZT() {
+  return shouldTurnOnPCO() && (tco <= (tkg - zth));
+}
 
-bool Config::shouldCloseZT() { return (tco >= (tkg + zth)); }
+bool Config::shouldCloseZT() {
+  return (tco >= (tkg + zth)); 
+}
 
-bool Config::shouldBeep() { return (tskw > 470) || (tkw > 95) || (tb > 95); }
+bool Config::shouldBeep() {
+  return (tskw > 470) || (tkw > 95) || (tb > 95) || ako;
+}
 
 bool Config::shouldTurnOnKO() {
-  return ko && (tb < 68.0) && (tko < 75.0) && (tskw < 80.0);
+  return ko && (tb < 73.0) && (tko < 75.0) && (tskw < 80.0);
 }
 
 bool Config::shouldTurnOffKO() {
@@ -85,12 +91,11 @@ bool Config::shouldTurnOffKO() {
 }
 
 bool Config::shouldTurnOnPKO() {
-  return ((tsko > 150.0) && (tko > 45.0) && (tb <= 80.0))
-    || (tko - tb > 2);
+  return ((tsko > 180.0) && (tko > 60.0)) || ((tko - tb) > 2);
 }
 
 bool Config::shouldTurnOffPKO() {
-  return (tko <= tb);
+  return (tko <= tb) || (tko < 50.0);
 }
 
 bool Config::isKODisabled() {

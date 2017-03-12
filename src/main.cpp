@@ -32,7 +32,7 @@ void initServer();
 
 void requestAndReadTemperatures();
 void readTemperatures();
-void readFurnaceSwitch();
+void readPins();
 void computeTKG();
 void controlZT();
 void beeper();
@@ -61,7 +61,7 @@ void setup() {
   delay(150);
   digitalWrite(BUZZER_PIN, LOW);
 
-  readFurnaceSwitch();
+  readPins();
   computeTKG();
   controlZT(); // recursive function
   updateDisplay();
@@ -99,7 +99,7 @@ void loop() {
     } else if (conf->shouldTurnOnKO()) {
       digitalWrite(KO_FURNACE_PIN, HIGH);
       digitalWrite(KO_FURNACE_PIN_COPY, HIGH);
-    } else if (conf->shouldTurnOffKO()){
+    } else if (conf->shouldTurnOffKO()) {
       digitalWrite(KO_FURNACE_PIN, LOW);
       digitalWrite(KO_FURNACE_PIN_COPY, LOW);
     }
@@ -173,7 +173,7 @@ void initTimer() {
   timer.setInterval(computeTKG, 600000);               // 10min.
   timer.setInterval(updateDisplay, 1000);
   timer.setInterval(beeper, 800);
-  timer.setInterval(readFurnaceSwitch, 1000);
+  timer.setInterval(readPins, 1000);
 }
 
 void initServer() { server = new WebServer(conf); }
@@ -246,8 +246,9 @@ void readTemperatures() {
   conf->tsko = isTSKOWorking ? tsko : conf->tsko;
 }
 
-void readFurnaceSwitch() {
+void readPins() {
   conf->ko = digitalRead(FURNACE_SWITCH_PIN) == HIGH;
+  //conf->ako = digitalRead(AKO_PIN) == HIGH;
 }
 
 void computeTKG() { conf->computeTKG(); }
@@ -330,6 +331,7 @@ void stopOnError() {
   timer.deleteAllTimers();
 
   digitalWrite(PKW_PIN, HIGH);
+  digitalWrite(PKO_PIN, HIGH);
   digitalWrite(PCWU_PIN, LOW);
   digitalWrite(PCO_PIN, LOW);
   digitalWrite(ZTZ_PIN, HIGH);
@@ -340,6 +342,7 @@ void stopOnError() {
   digitalWrite(BUZZER_PIN, HIGH);
 
   conf->pkw = true;
+  conf->pko = true;
   conf->pcwu = false;
   conf->pco = false;
 }
