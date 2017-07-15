@@ -16,7 +16,6 @@
 #define KO_FURNACE_PIN_COPY 30
 #define PKO_PIN 34
 #define PFA_PIN 27
-#define AKO_PIN 33 //
 
 #define MAX_SCK_W 22
 #define MAX_CS_W 24

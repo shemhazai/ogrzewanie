@@ -1,2 +1,2 @@
 # Ogrzewanie
-Projekt na platformę Arduino, sterujący centralnym ogrzewaniem w domu.
+Arduino project, intended to control central heating in my house.
